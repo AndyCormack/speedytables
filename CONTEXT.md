@@ -25,7 +25,7 @@ _Avoid_: viewport rows, visible rows
 A pipeline pass from an invalidated stage onward (e.g. O(N log N) when the sort comparator changes).
 
 **Incremental update**:
-Patching a delta into the existing filtered+sorted output without a full pass; O(log N) per row.
+Patching a delta into the existing filtered+sorted output without a full pipeline recompute; one merge pass per coalesced frame batch.
 
 ### Extension & execution
 
