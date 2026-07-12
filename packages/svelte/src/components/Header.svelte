@@ -28,7 +28,7 @@
 					data-dtype={column.dataType ?? 'text'}
 					role="columnheader"
 					aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : 'none'}
-					style="width:{column.width ?? 150}px; flex:none; overflow:hidden; display:flex; flex-direction:column;"
+					style="width:{column.width ?? 150}px; box-sizing:border-box; flex:none; overflow:hidden; display:flex; flex-direction:column;"
 				>
 					<button
 						type="button"
