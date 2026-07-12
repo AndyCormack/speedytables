@@ -112,4 +112,23 @@
 		height: 600px;
 		margin: 0.5rem 1rem;
 	}
+	/* Minimal styling for the headless speedy grid, via its data attributes. */
+	.grid-host :global([data-speedy-root]) {
+		border: 1px solid #ccc;
+		font-size: 0.85rem;
+	}
+	.grid-host :global([data-speedy-header]) {
+		background: #f5f5f5;
+		border-bottom: 1px solid #ccc;
+		font-weight: 600;
+	}
+	.grid-host :global([data-speedy-header-cell]),
+	.grid-host :global([data-speedy-cell]) {
+		padding: 0 0.5rem;
+		line-height: 32px;
+	}
+	.grid-host :global([data-speedy-row]) {
+		border-bottom: 1px solid #eee;
+		background: #fff;
+	}
 </style>
