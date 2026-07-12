@@ -13,6 +13,7 @@
 
 <div
 	data-speedy-cell
+	data-dtype={column.dataType ?? 'text'}
 	role="gridcell"
 	style="width:{column.width ?? 150}px; flex:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
 >

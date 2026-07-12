@@ -85,6 +85,14 @@ export class RowPipeline<Row> {
 				const lower = yield* this.lowerProjectionJob(column);
 				const needle = spec.value.toLowerCase();
 				tests.push((i) => lower[i]!.includes(needle));
+			} else if (spec.type === 'range') {
+				const projection = (yield* this.projectionJob(column)) as Float64Array;
+				const min = spec.min ?? -Infinity;
+				const max = spec.max ?? Infinity;
+				tests.push((i) => {
+					const value = projection[i]!;
+					return value >= min && value <= max; // NaN (null) never passes
+				});
 			} else {
 				const projection = (yield* this.projectionJob(column)) as string[];
 				const allowed = new Set(spec.values);

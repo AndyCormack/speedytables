@@ -14,8 +14,8 @@
 			id: col.id,
 			header: col.header,
 			dataType: col.type,
-			filter: col.enumValues ? 'enum' : 'text',
-			filterValues: col.enumValues,
+			// enum when values are known; otherwise FilterControl defaults by dataType
+			...(col.enumValues ? { filter: 'enum' as const, filterValues: col.enumValues } : {}),
 			width: 150,
 			format:
 				col.type === 'date'
@@ -40,6 +40,5 @@
 
 <Table.Root {grid}>
 	<Table.Header />
-	<Table.FilterRow />
 	<Table.Viewport />
 </Table.Root>

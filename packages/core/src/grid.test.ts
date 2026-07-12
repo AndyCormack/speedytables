@@ -52,6 +52,27 @@ describe('Grid filtering', () => {
 		expect(refined).toEqual(['e']);
 	});
 
+	it('range filters number columns inclusively', async () => {
+		const grid = makeGrid();
+		await grid.setFilterModel([{ columnId: 'price', type: 'range', min: 10, max: 30 }]);
+		expect(ids(grid)).toEqual(['a', 'b', 'c']);
+		await grid.setFilterModel([{ columnId: 'price', type: 'range', min: 25 }]);
+		expect(ids(grid)).toEqual(['a', 'd']);
+		await grid.setFilterModel([{ columnId: 'price', type: 'range', max: 10 }]);
+		expect(ids(grid)).toEqual(['b', 'e']);
+	});
+
+	it('range refinement (tightened bounds) matches a fresh scan', async () => {
+		const grid = makeGrid();
+		await grid.setFilterModel([{ columnId: 'price', type: 'range', min: 5 }]);
+		await grid.setFilterModel([{ columnId: 'price', type: 'range', min: 15, max: 35 }]);
+		const refined = ids(grid);
+		const fresh = makeGrid();
+		await fresh.setFilterModel([{ columnId: 'price', type: 'range', min: 15, max: 35 }]);
+		expect(refined).toEqual(ids(fresh));
+		expect(refined).toEqual(['a', 'c']);
+	});
+
 	it('in-set filters on exact values', async () => {
 		const grid = makeGrid();
 		await grid.setFilterModel([{ columnId: 'kind', type: 'in', values: ['x', 'z'] }]);

@@ -37,6 +37,9 @@ export function narrows(prev: FilterSpec[], next: FilterSpec[]): boolean {
 		} else if (a.type === 'in' && b.type === 'in') {
 			const prevValues = new Set(a.values);
 			if (!b.values.every((v) => prevValues.has(v))) return false;
+		} else if (a.type === 'range' && b.type === 'range') {
+			if ((b.min ?? -Infinity) < (a.min ?? -Infinity)) return false;
+			if ((b.max ?? Infinity) > (a.max ?? Infinity)) return false;
 		}
 	}
 	return true;

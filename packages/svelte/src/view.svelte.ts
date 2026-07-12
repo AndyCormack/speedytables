@@ -55,6 +55,24 @@ export class GridView {
 		);
 	}
 
+	/** Current range-filter bounds for a column (null when none). */
+	rangeValue(columnId: string): { min?: number; max?: number } | null {
+		const spec = this.filterModel.find((s) => s.columnId === columnId);
+		return spec?.type === 'range' ? spec : null;
+	}
+
+	setRange(columnId: string, min: number | undefined, max: number | undefined): void {
+		const others = this.filterModel.filter((s) => s.columnId !== columnId);
+		if (min === undefined && max === undefined) {
+			void this.grid.setFilterModel(others);
+			return;
+		}
+		void this.grid.setFilterModel([
+			...others,
+			{ columnId, type: 'range', ...(min !== undefined && { min }), ...(max !== undefined && { max }) }
+		]);
+	}
+
 	sortDirection(columnId: string): 'asc' | 'desc' | undefined {
 		return this.sortModel.find((s) => s.columnId === columnId)?.dir;
 	}

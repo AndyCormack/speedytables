@@ -10,15 +10,16 @@ export interface SortSpec {
 /** Declarative filter descriptors (ADR-0002) — serializable, worker-eligible. Specs AND together. */
 export type FilterSpec =
 	| { columnId: string; type: 'contains'; value: string } // case-insensitive text
-	| { columnId: string; type: 'in'; values: string[] }; // enum/set membership (exact)
+	| { columnId: string; type: 'in'; values: string[] } // enum/set membership (exact)
+	| { columnId: string; type: 'range'; min?: number; max?: number }; // number/date bounds, inclusive
 
 export interface ColumnDef {
 	id: string;
 	header?: string;
 	/** Drives sort-key projection: number/date project to Float64Array. Default 'text'. */
 	dataType?: DataType;
-	/** Which filter UI a filter row renders for this column. Default 'text' (contains). */
-	filter?: 'text' | 'enum' | 'none';
+	/** Which filter UI a filter row renders for this column. Defaults by dataType: number → 'range', date → 'none', text → 'text'. */
+	filter?: 'text' | 'enum' | 'range' | 'none';
 	/** Options for the 'enum' filter UI. The core never reads this. */
 	filterValues?: string[];
 	/** Pixel width. Fixed in M1; resize/reorder land in M6. */
