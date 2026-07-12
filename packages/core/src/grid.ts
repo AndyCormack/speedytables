@@ -1,10 +1,11 @@
 import { SliceEmitter } from './emitter';
 import { MainThreadExecutor, type Executor, type Job } from './executor';
 import { RowPipeline } from './pipeline';
-import { sortIndexJob, type SortKey } from './sort';
+import { buildComparator, sortIndexJob, type SortKey } from './sort';
 import { computeWindow } from './viewport';
 import type {
 	ColumnDef,
+	Delta,
 	FilterSpec,
 	GridConfig,
 	PositionSlice,
@@ -12,6 +13,11 @@ import type {
 	SortSpec,
 	WindowSlice
 } from './types';
+
+const scheduleFlush: (callback: () => void) => void =
+	typeof requestAnimationFrame === 'function'
+		? (cb) => requestAnimationFrame(() => cb())
+		: (cb) => setTimeout(cb, 0);
 
 export class Grid<Row> {
 	readonly columns: ColumnDef[];
@@ -28,6 +34,11 @@ export class Grid<Row> {
 	#sortModel: SortSpec[] = [];
 	#filterModel: FilterSpec[] = [];
 	#rebuildAbort: AbortController | null = null;
+	#rebuildPromise: Promise<void> | null = null;
+	/** Sort keys matching the currently-applied sorted index (for incremental patches). */
+	#sortKeys: SortKey[] | null = null;
+	#pendingDeltas: Delta<Row>[] = [];
+	#flushPromise: Promise<void> | null = null;
 
 	#window: WindowSlice<Row> = { firstRow: 0, count: 0, rows: [] };
 	#position: PositionSlice = { blockTop: 0, virtualHeight: 0 };
@@ -88,11 +99,69 @@ export class Grid<Row> {
 	}
 
 	/**
+	 * Applies a delta batch (ADR-0004). All deltas received within one animation
+	 * frame coalesce into a single pipeline patch; updates take the incremental
+	 * path, inserts/removes trigger a full recompute. Resolves once this batch
+	 * is applied to the window.
+	 */
+	applyDelta(delta: Delta<Row>): Promise<void> {
+		this.#pendingDeltas.push(delta);
+		this.#flushPromise ??= new Promise((resolve, reject) => {
+			scheduleFlush(() => this.#flush().then(resolve, reject));
+		});
+		return this.#flushPromise;
+	}
+
+	async #flush(): Promise<void> {
+		const batch = this.#pendingDeltas;
+		this.#pendingDeltas = [];
+		this.#flushPromise = null;
+
+		// never mutate the source while a rebuild job is reading it
+		await this.#rebuildPromise;
+
+		const inserts = batch.flatMap((d) => d.insert ?? []);
+		const removes = batch.flatMap((d) => d.remove ?? []);
+		const updates = batch.flatMap((d) => d.update ?? []);
+
+		if (inserts.length > 0 || removes.length > 0) {
+			if (removes.length > 0) this.#pipeline.removeByIds(removes, this.getRowId);
+			if (inserts.length > 0) this.#pipeline.appendRows(inserts, this.getRowId);
+			for (const row of updates) {
+				// structural change forces a rebuild anyway; fold updates into the source
+				const map = await this.#executor.run(this.#pipeline.idIndexJob(this.getRowId));
+				const index = map.get(this.getRowId(row));
+				if (index !== undefined) this.#pipeline.patch([{ index, row }], this.columns, null);
+			}
+			await this.#rebuild(true);
+			return;
+		}
+		if (updates.length === 0) return;
+
+		const idIndex = await this.#executor.run(this.#pipeline.idIndexJob(this.getRowId));
+		// last write wins when one row is updated twice in a frame
+		const byIndex = new Map<number, Row>();
+		for (const row of updates) {
+			const index = idIndex.get(this.getRowId(row));
+			if (index !== undefined) byIndex.set(index, row);
+		}
+		if (byIndex.size === 0) return;
+
+		const comparator = this.#sortKeys ? buildComparator(this.#sortKeys) : null;
+		this.#pipeline.patch(
+			[...byIndex.entries()].map(([index, row]) => ({ index, row })),
+			this.columns,
+			comparator
+		);
+		this.#recompute(true);
+	}
+
+	/**
 	 * Recomputes invalidated pipeline stages in order (filter → sort). A newer
 	 * call aborts an in-flight rebuild at its next slice point; a sort-only
 	 * change reuses the cached filter output.
 	 */
-	async #rebuild(filterDirty: boolean): Promise<void> {
+	#rebuild(filterDirty: boolean): Promise<void> {
 		this.#rebuildAbort?.abort();
 		const abort = (this.#rebuildAbort = new AbortController());
 
@@ -101,7 +170,7 @@ export class Grid<Row> {
 		const filterModel = this.#filterModel;
 		const sortModel = this.#sortModel;
 
-		const job = function* (): Job<Uint32Array | null> {
+		const job = function* (): Job<{ sorted: Uint32Array; keys: SortKey[] } | null> {
 			if (filterDirty) yield* pipeline.filterJob(filterModel, columns);
 			if (sortModel.length === 0) return null;
 			const keys: SortKey[] = [];
@@ -110,18 +179,26 @@ export class Grid<Row> {
 				if (!column) throw new Error(`Unknown sort column: ${spec.columnId}`);
 				keys.push({ projection: yield* pipeline.projectionJob(column), dir: spec.dir });
 			}
-			return yield* sortIndexJob(keys, yield* pipeline.candidatesJob());
+			return { sorted: yield* sortIndexJob(keys, yield* pipeline.candidatesJob()), keys };
 		};
 
-		try {
-			const sorted = await this.#executor.run(job(), abort.signal);
-			if (abort.signal.aborted) return;
-			this.#pipeline.setSortedIndex(sorted);
-			this.#recompute(true);
-		} catch (error) {
-			if (error instanceof DOMException && error.name === 'AbortError') return;
-			throw error;
-		}
+		const run = (async () => {
+			try {
+				const result = await this.#executor.run(job(), abort.signal);
+				if (abort.signal.aborted) return;
+				this.#pipeline.setSortedIndex(result?.sorted ?? null);
+				this.#sortKeys = result?.keys ?? null;
+				this.#recompute(true);
+			} catch (error) {
+				if (error instanceof DOMException && error.name === 'AbortError') return;
+				throw error;
+			} finally {
+				// only the newest rebuild owns the pointer
+				if (this.#rebuildAbort === abort) this.#rebuildPromise = null;
+			}
+		})();
+		this.#rebuildPromise = run;
+		return run;
 	}
 
 	setScrollTop(px: number): void {

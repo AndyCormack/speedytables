@@ -41,6 +41,18 @@ export interface GridConfig<Row> {
 	executor?: import('./executor').Executor;
 }
 
+/**
+ * An explicit batch of row mutations, keyed by row id (ADR-0004). Batches
+ * applied within one animation frame coalesce into a single pipeline patch.
+ */
+export interface Delta<Row> {
+	insert?: Row[];
+	/** Full replacement rows, matched to existing rows via getRowId. */
+	update?: Row[];
+	/** Row ids to remove. */
+	remove?: string[];
+}
+
 /** The contiguous slice of pipeline output currently materialized for rendering. */
 export interface WindowSlice<Row> {
 	firstRow: number;

@@ -51,7 +51,8 @@ export function* sortIndexJob(keys: SortKey[], input: Uint32Array): Job<Uint32Ar
 	return source;
 }
 
-function buildComparator(keys: SortKey[]): (a: number, b: number) => number {
+/** Total ordering over source indices (ties break by index) — also used by the incremental patch path. */
+export function buildComparator(keys: SortKey[]): (a: number, b: number) => number {
 	const count = keys.length;
 	const projections = keys.map((k) => k.projection);
 	const signs = keys.map((k) => (k.dir === 'desc' ? -1 : 1));

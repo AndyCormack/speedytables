@@ -67,7 +67,7 @@ export interface FrameStats {
  */
 export function driveFrames(totalMs: number, onFrame: (progress: number) => void): Promise<FrameStats> {
 	const deltas: number[] = [];
-	return new Promise((resolve) => {
+	return new Promise((resolve, reject) => {
 		const start = performance.now();
 		let last = start;
 		const tick = () => {
@@ -79,7 +79,14 @@ export function driveFrames(totalMs: number, onFrame: (progress: number) => void
 				resolve(frameStats(deltas.slice(1))); // first delta measures setup, not a frame
 				return;
 			}
-			onFrame(Math.min(elapsed / totalMs, 1));
+			// an onFrame throw must reject (not escape the rAF callback), or the
+			// scenario hangs at "Running…" with only a console error to show for it
+			try {
+				onFrame(Math.min(elapsed / totalMs, 1));
+			} catch (error) {
+				reject(error);
+				return;
+			}
 			requestAnimationFrame(tick);
 		};
 		requestAnimationFrame(tick);

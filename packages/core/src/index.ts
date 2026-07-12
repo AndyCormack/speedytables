@@ -9,6 +9,7 @@ export type { ViewportInput, ViewportWindow } from './viewport';
 export type {
 	ColumnDef,
 	DataType,
+	Delta,
 	FilterSpec,
 	GridConfig,
 	PositionSlice,

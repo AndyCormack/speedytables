@@ -98,6 +98,57 @@ describe('Grid filtering', () => {
 		expect(ids(grid)).toEqual(['e', 'b', 'c', 'a', 'd']);
 	});
 
+	it('applyDelta update changes the visible row in place', async () => {
+		const grid = makeGrid();
+		await grid.applyDelta({ update: [{ id: 'b', name: 'Global Holdings', kind: 'y', price: 99 }] });
+		expect(grid.window.rows.find((r) => r.id === 'b')?.price).toBe(99);
+		expect(grid.rowCount).toBe(5);
+	});
+
+	it('applyDelta re-positions an updated row under an active sort', async () => {
+		const grid = makeGrid();
+		await grid.setSortModel([{ columnId: 'price', dir: 'asc' }]);
+		expect(ids(grid)).toEqual(['e', 'b', 'c', 'a', 'd']);
+		await grid.applyDelta({ update: [{ id: 'e', name: 'Pacific Capital', kind: 'y', price: 35 }] });
+		expect(ids(grid)).toEqual(['b', 'c', 'a', 'e', 'd']);
+	});
+
+	it('applyDelta moves rows in and out of an active filter', async () => {
+		const grid = makeGrid();
+		await grid.setFilterModel([{ columnId: 'price', type: 'range', min: 25 }]);
+		await grid.setSortModel([{ columnId: 'price', dir: 'asc' }]);
+		expect(ids(grid)).toEqual(['a', 'd']);
+		await grid.applyDelta({
+			update: [
+				{ id: 'a', name: 'Pacific Systems', kind: 'x', price: 1 }, // leaves
+				{ id: 'b', name: 'Global Holdings', kind: 'y', price: 50 } // enters
+			]
+		});
+		expect(ids(grid)).toEqual(['d', 'b']);
+	});
+
+	it('coalesces same-frame deltas; last write to a row wins', async () => {
+		const grid = makeGrid();
+		await grid.setSortModel([{ columnId: 'price', dir: 'asc' }]);
+		const first = grid.applyDelta({ update: [{ id: 'a', name: 'Pacific Systems', kind: 'x', price: 1 }] });
+		const second = grid.applyDelta({ update: [{ id: 'a', name: 'Pacific Systems', kind: 'x', price: 100 }] });
+		expect(second).toBe(first); // same flush
+		await second;
+		expect(grid.window.rows.filter((r) => r.id === 'a')).toHaveLength(1);
+		expect(ids(grid)).toEqual(['e', 'b', 'c', 'd', 'a']);
+	});
+
+	it('applyDelta insert and remove rebuild the pipeline', async () => {
+		const grid = makeGrid();
+		await grid.setFilterModel([{ columnId: 'kind', type: 'in', values: ['x'] }]);
+		await grid.applyDelta({
+			insert: [{ id: 'f', name: 'New Corp', kind: 'x', price: 7 }],
+			remove: ['a']
+		});
+		expect(grid.rowCount).toBe(2);
+		expect(ids(grid)).toEqual(['c', 'f']);
+	});
+
 	it('clearing the filter restores all rows and the window follows rowCount', async () => {
 		const grid = makeGrid();
 		await grid.setFilterModel([{ columnId: 'kind', type: 'in', values: ['nope'] }]);

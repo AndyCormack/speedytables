@@ -48,7 +48,9 @@ export function speedyDriver(): GridDriver {
 			else filters.set(columnId, { columnId, type: 'in', values });
 			await applyFilters();
 		},
-		applyUpdates: notYet('deltas', 'M4'),
+		applyUpdates(rows) {
+			void app?.getGrid().applyDelta({ update: rows as Record<string, unknown>[] });
+		},
 
 		scrollElement: viewport,
 		hScrollElement: viewport,
