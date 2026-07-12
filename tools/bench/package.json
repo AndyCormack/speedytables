@@ -6,6 +6,7 @@
   "scripts": {
     "bench": "node src/run.ts",
     "report": "node src/report.ts",
+    "smoke": "node src/smoke.ts",
     "install-browsers": "playwright install chromium"
   },
   "devDependencies": {

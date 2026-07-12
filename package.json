@@ -14,7 +14,8 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "bench": "pnpm --filter demo build && pnpm --filter bench bench",
-    "bench:report": "pnpm --filter bench report"
+    "bench:report": "pnpm --filter bench report",
+    "smoke": "pnpm --filter demo build && pnpm --filter bench smoke"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",

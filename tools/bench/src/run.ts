@@ -5,17 +5,16 @@
  * Usage: pnpm bench [scenario ...] [--grid=aggrid,speedy] [--size=10k|100k|1m] [--repeats=N]
  * Assumes the demo app is built (root `pnpm bench` script builds first).
  */
-import { spawn, execSync, type ChildProcess } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import { chromium, type CDPSession, type Page } from 'playwright';
+import { BASE, startServer, stopServer } from './server.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const RESULTS_DIR = join(ROOT, 'tools', 'bench', 'results');
-const PORT = 4173;
-const BASE = `http://localhost:${PORT}`;
 
 /** Mirrors the scenario registry in apps/demo/src/lib/scenarios. */
 const SCENARIOS: { name: string; size: string }[] = [
@@ -73,35 +72,6 @@ function parseArgs(argv: string[]) {
 	};
 }
 
-async function serverUp(): Promise<boolean> {
-	try {
-		const res = await fetch(BASE, { signal: AbortSignal.timeout(2000) });
-		return res.ok;
-	} catch {
-		return false;
-	}
-}
-
-async function startServer(): Promise<ChildProcess | null> {
-	if (await serverUp()) {
-		console.log(`Reusing server at ${BASE}`);
-		return null;
-	}
-	console.log('Starting preview server…');
-	// spawn vite directly: pnpm's `--` forwarding is unreliable and non-strict
-	// port fallback would leave us polling a port vite silently abandoned
-	const child = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
-		cwd: join(ROOT, 'apps', 'demo'),
-		shell: true,
-		stdio: 'ignore'
-	});
-	for (let i = 0; i < 60; i++) {
-		if (await serverUp()) return child;
-		await new Promise((r) => setTimeout(r, 500));
-	}
-	throw new Error('Preview server did not come up on ' + BASE);
-}
-
 async function cdpMetrics(client: CDPSession): Promise<Record<string, number>> {
 	const { metrics } = await client.send('Performance.getMetrics');
 	return Object.fromEntries(metrics.map((m: { name: string; value: number }) => [m.name, m.value]));
@@ -149,7 +119,7 @@ function git(cmd: string): string {
 }
 
 const args = parseArgs(process.argv.slice(2));
-const server = await startServer();
+const server = await startServer(ROOT);
 const browser = await chromium.launch();
 const results: RunResult[] = [];
 
@@ -201,11 +171,5 @@ try {
 	console.log(`\nWrote ${file}`);
 } finally {
 	await browser.close();
-	if (server) {
-		if (process.platform === 'win32' && server.pid) {
-			execSync(`taskkill /pid ${server.pid} /T /F`, { stdio: 'ignore' });
-		} else {
-			server.kill();
-		}
-	}
+	stopServer(server);
 }
