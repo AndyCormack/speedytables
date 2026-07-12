@@ -35,6 +35,11 @@ One family: `system-ui` stack. Grid at 13px, controls at 12px, weight 600 for he
 - **Enum panel** uses the native Popover API (top layer — immune to grid clipping; light-dismiss + Esc built in), anchored under its trigger, with title + Reset header.
 - **States**: every control has default / hover (accent border) / focus-visible (accent ring) / active-filter (accent border + tint). Focus rings always visible, never `outline: none` without replacement.
 
+## Demo-app chrome
+
+- **Segmented controls** for the grid-under-test and row-count selectors (real radio groups, arrow-key navigable): active option filled with the accent, dark ink on top. The grid segment is the single source of truth for which library is live.
+- **Comparison table**: per-grid results persist in localStorage (keyed scenario+size) so both columns fill as each grid runs; winner cells tinted green (`oklch(0.82 0.14 150)` on a soft green wash), Δ column shows ×-multiples for big gaps and % for small ones, ties as —. The current grid's column header reads brighter.
+
 ## Motion
 
 150ms `cubic-bezier(0.165, 0.84, 0.44, 1)` (ease-out-quart) on control states; popover enters via `@starting-style` fade/4px-rise. All transitions disabled under `prefers-reduced-motion`. Nothing animates during scroll or data updates — performance is visible (PRODUCT.md).

@@ -1,5 +1,14 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import {
+		clearRuns,
+		compareMetric,
+		loadRun,
+		metricKeys,
+		relativeTime,
+		saveRun
+	} from '$lib/compare';
 	import { SIZES, type SizeKey } from '$lib/dataset';
 	import { drivers, type GridDriver, type GridName } from '$lib/drivers';
 
@@ -9,21 +18,49 @@
 	const gridName = $derived((page.url.searchParams.get('grid') ?? 'aggrid') as GridName);
 	const sizeKey = $derived((page.url.searchParams.get('size') ?? scenario.defaultSize) as SizeKey);
 
+	const GRIDS: { id: GridName; label: string }[] = [
+		{ id: 'speedy', label: 'SpeedyTables' },
+		{ id: 'aggrid', label: 'AG Grid' }
+	];
+
 	let container: HTMLElement;
 	let driver: GridDriver | null = null;
-	let results = $state<Record<string, number> | null>(null);
 	let running = $state(false);
 	let error = $state<string | null>(null);
+
+	// Stored results survive grid switches and reloads (per scenario + size),
+	// so both columns of the comparison fill in as each grid is run.
+	let storedVersion = $state(0);
+	const stored = $derived.by(() => {
+		void storedVersion;
+		void page.url; // re-read after navigation
+		return {
+			speedy: loadRun(scenario.name, sizeKey, 'speedy'),
+			aggrid: loadRun(scenario.name, sizeKey, 'aggrid')
+		};
+	});
+
+	function select(param: 'grid' | 'size', value: string) {
+		const grid = param === 'grid' ? value : gridName;
+		const size = param === 'size' ? value : sizeKey;
+		void goto(`?grid=${grid}&size=${size}`);
+	}
+
+	function clearStored() {
+		clearRuns(scenario.name, sizeKey);
+		storedVersion++;
+	}
 
 	async function run(): Promise<Record<string, number>> {
 		running = true;
 		error = null;
-		results = null;
 		try {
 			driver?.destroy();
 			container.replaceChildren();
 			driver = drivers[gridName]();
-			results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });
+			const results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });
+			saveRun(scenario.name, sizeKey, gridName, results);
+			storedVersion++;
 			return results;
 		} catch (e) {
 			error = e instanceof Error ? e.message : String(e);
@@ -51,27 +88,76 @@
 <header>
 	<h1>{scenario.name}</h1>
 	<p>{scenario.description}</p>
-	<p class="meta">
-		grid: <strong>{gridName}</strong> · rows: <strong>{sizeKey}</strong>
-		{#each Object.keys(SIZES) as key (key)}
-			· <a href="?grid={gridName}&size={key}">{key}</a>
-		{/each}
-		· <a href="?grid={gridName === 'aggrid' ? 'speedy' : 'aggrid'}&size={sizeKey}">
-			switch to {gridName === 'aggrid' ? 'speedy' : 'aggrid'}
-		</a>
-	</p>
-	<button onclick={run} disabled={running}>{running ? 'Running…' : 'Run scenario'}</button>
+	<div class="controls">
+		<div class="seg" role="radiogroup" aria-label="Grid under test">
+			{#each GRIDS as g (g.id)}
+				<label class="seg-option" class:active={gridName === g.id}>
+					<input
+						type="radio"
+						name="grid"
+						value={g.id}
+						checked={gridName === g.id}
+						onchange={() => select('grid', g.id)}
+					/>
+					<span>{g.label}</span>
+				</label>
+			{/each}
+		</div>
+		<div class="seg" role="radiogroup" aria-label="Row count">
+			{#each Object.keys(SIZES) as key (key)}
+				<label class="seg-option" class:active={sizeKey === key}>
+					<input
+						type="radio"
+						name="size"
+						value={key}
+						checked={sizeKey === key}
+						onchange={() => select('size', key)}
+					/>
+					<span>{key} rows</span>
+				</label>
+			{/each}
+		</div>
+		<button class="run" onclick={run} disabled={running}>
+			{running ? 'Running…' : 'Run scenario'}
+		</button>
+		{#if stored.speedy || stored.aggrid}
+			<button class="ghost" onclick={clearStored}>Clear results</button>
+		{/if}
+	</div>
 </header>
 
 {#if error}
 	<p class="error">{error}</p>
 {/if}
 
-{#if results}
-	<table class="results">
+{#if stored.speedy || stored.aggrid}
+	{@const keys = metricKeys(stored.speedy?.results, stored.aggrid?.results)}
+	<table class="compare">
+		<thead>
+			<tr>
+				<th></th>
+				<th class:current={gridName === 'speedy'}>
+					SpeedyTables
+					{#if stored.speedy}<span class="when">{relativeTime(stored.speedy.date)}</span>{/if}
+				</th>
+				<th class:current={gridName === 'aggrid'}>
+					AG Grid
+					{#if stored.aggrid}<span class="when">{relativeTime(stored.aggrid.date)}</span>{/if}
+				</th>
+				<th class="delta-head">Δ</th>
+			</tr>
+		</thead>
 		<tbody>
-			{#each Object.entries(results) as [key, value] (key)}
-				<tr><th>{key}</th><td>{value}</td></tr>
+			{#each keys as key (key)}
+				{@const s = stored.speedy?.results[key]}
+				{@const a = stored.aggrid?.results[key]}
+				{@const delta = s !== undefined && a !== undefined ? compareMetric(key, s, a) : null}
+				<tr>
+					<th>{key}</th>
+					<td class:win={delta?.winner === 'speedy'}>{s ?? '·'}</td>
+					<td class:win={delta?.winner === 'aggrid'}>{a ?? '·'}</td>
+					<td class="delta" data-winner={delta?.winner ?? 'tie'}>{delta?.label ?? ''}</td>
+				</tr>
 			{/each}
 		</tbody>
 	</table>
@@ -81,33 +167,162 @@
 
 <style>
 	header {
-		padding: 0.5rem 1rem;
+		padding: 0.75rem 1rem 0.25rem;
 	}
 	h1 {
 		margin: 0;
 		font-size: 1.25rem;
 	}
 	p {
-		margin: 0.25rem 0;
-	}
-	.meta {
+		margin: 0.25rem 0 0.75rem;
 		color: var(--app-ink-soft);
 	}
 	.error {
 		color: oklch(0.72 0.19 25);
 		padding: 0 1rem;
 	}
-	.results {
-		margin: 0.5rem 1rem;
+
+	/* controls */
+	.controls {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+	.seg {
+		display: flex;
+		padding: 2px;
+		background: oklch(0.22 0.012 255);
+		border: 1px solid oklch(0.3 0.012 255);
+		border-radius: 7px;
+	}
+	.seg-option {
+		position: relative;
+		cursor: pointer;
+	}
+	.seg-option input {
+		position: absolute;
+		opacity: 0;
+		inset: 0;
+		cursor: pointer;
+	}
+	.seg-option span {
+		display: block;
+		padding: 3px 12px;
+		border-radius: 5px;
+		font-size: 12.5px;
+		line-height: 20px;
+		color: var(--app-ink-soft);
+		transition: background-color 150ms cubic-bezier(0.165, 0.84, 0.44, 1), color 150ms cubic-bezier(0.165, 0.84, 0.44, 1);
+		white-space: nowrap;
+	}
+	.seg-option:hover span {
+		color: var(--app-ink);
+	}
+	.seg-option.active span {
+		background: var(--app-accent);
+		color: oklch(0.14 0.015 255);
+		font-weight: 600;
+	}
+	.seg-option input:focus-visible + span {
+		outline: none;
+		box-shadow: 0 0 0 2px oklch(0.72 0.1 220 / 0.45);
+	}
+	.run {
+		padding: 4px 16px;
+		border: 1px solid oklch(0.45 0.02 220);
+		border-radius: 7px;
+		background: oklch(0.28 0.045 220);
+		color: var(--app-ink);
+		font: inherit;
+		font-size: 12.5px;
+		font-weight: 600;
+		line-height: 20px;
+		cursor: pointer;
+		transition: background-color 150ms cubic-bezier(0.165, 0.84, 0.44, 1);
+	}
+	.run:hover:not(:disabled) {
+		background: oklch(0.33 0.055 220);
+	}
+	.run:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+	.run:focus-visible,
+	.ghost:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px oklch(0.72 0.1 220 / 0.45);
+	}
+	.ghost {
+		padding: 4px 10px;
+		border: none;
+		border-radius: 7px;
+		background: transparent;
+		color: var(--app-ink-soft);
+		font: inherit;
+		font-size: 12px;
+		line-height: 20px;
+		cursor: pointer;
+	}
+	.ghost:hover {
+		color: var(--app-ink);
+		background: oklch(0.24 0.012 255);
+	}
+
+	/* comparison table */
+	.compare {
+		margin: 0.75rem 1rem 0.25rem;
 		border-collapse: collapse;
-		font-size: 0.85rem;
+		font-size: 12.5px;
 		font-variant-numeric: tabular-nums;
 	}
-	.results th,
-	.results td {
-		border: 1px solid oklch(0.35 0.012 255);
-		padding: 0.15rem 0.5rem;
+	.compare th,
+	.compare td {
+		padding: 3px 14px 3px 0;
+		text-align: right;
+		border-bottom: 1px solid oklch(0.26 0.01 255);
+	}
+	.compare tbody th {
 		text-align: left;
+		font-weight: 400;
+		color: var(--app-ink-soft);
+		padding-right: 20px;
+	}
+	.compare thead th {
+		font-weight: 600;
+		padding-bottom: 5px;
+		color: var(--app-ink-soft);
+	}
+	.compare thead th.current {
+		color: var(--app-ink);
+	}
+	.when {
+		display: block;
+		font-weight: 400;
+		font-size: 10.5px;
+		color: oklch(0.55 0.015 250);
+	}
+	.compare td.win {
+		color: oklch(0.82 0.14 150);
+		background: oklch(0.26 0.035 150 / 0.35);
+		font-weight: 600;
+	}
+	.compare .delta,
+	.compare .delta-head {
+		padding-right: 0;
+		color: oklch(0.55 0.015 250);
+		font-size: 11.5px;
+	}
+	.compare .delta[data-winner='speedy'],
+	.compare .delta[data-winner='aggrid'] {
+		color: oklch(0.75 0.1 150);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.seg-option span,
+		.run {
+			transition: none;
+		}
 	}
 	.grid-host {
 		height: 600px;
