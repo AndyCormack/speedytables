@@ -14,6 +14,8 @@
 			id: col.id,
 			header: col.header,
 			dataType: col.type,
+			filter: col.enumValues ? 'enum' : 'text',
+			filterValues: col.enumValues,
 			width: 150,
 			format:
 				col.type === 'date'
@@ -38,5 +40,6 @@
 
 <Table.Root {grid}>
 	<Table.Header />
+	<Table.FilterRow />
 	<Table.Viewport />
 </Table.Root>

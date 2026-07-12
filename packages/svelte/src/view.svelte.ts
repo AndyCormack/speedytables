@@ -29,6 +29,32 @@ export class GridView {
 		];
 	}
 
+	/** Current contains-filter text for a column ('' when none). */
+	containsValue(columnId: string): string {
+		const spec = this.filterModel.find((s) => s.columnId === columnId);
+		return spec?.type === 'contains' ? spec.value : '';
+	}
+
+	/** Current enum-filter selection for a column (null when none). */
+	inValues(columnId: string): string[] | null {
+		const spec = this.filterModel.find((s) => s.columnId === columnId);
+		return spec?.type === 'in' ? spec.values : null;
+	}
+
+	setContains(columnId: string, text: string): void {
+		const others = this.filterModel.filter((s) => s.columnId !== columnId);
+		void this.grid.setFilterModel(
+			text === '' ? others : [...others, { columnId, type: 'contains', value: text }]
+		);
+	}
+
+	setIn(columnId: string, values: string[] | null): void {
+		const others = this.filterModel.filter((s) => s.columnId !== columnId);
+		void this.grid.setFilterModel(
+			values === null || values.length === 0 ? others : [...others, { columnId, type: 'in', values }]
+		);
+	}
+
 	sortDirection(columnId: string): 'asc' | 'desc' | undefined {
 		return this.sortModel.find((s) => s.columnId === columnId)?.dir;
 	}

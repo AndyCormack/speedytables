@@ -131,4 +131,29 @@
 		border-bottom: 1px solid #eee;
 		background: #fff;
 	}
+	.grid-host :global([data-speedy-filter-row]) {
+		background: #fafafa;
+		border-bottom: 1px solid #ccc;
+	}
+	.grid-host :global([data-speedy-filter-cell]) {
+		padding: 2px 0.25rem;
+	}
+	.grid-host :global([data-speedy-filter-input]) {
+		width: 100%;
+		box-sizing: border-box;
+		font: inherit;
+		padding: 1px 4px;
+	}
+	.grid-host :global([data-speedy-enum-summary]) {
+		cursor: pointer;
+		font-size: 0.8rem;
+		line-height: 24px;
+	}
+	.grid-host :global([data-speedy-enum-options]) {
+		background: #fff;
+		border: 1px solid #ccc;
+		padding: 0.25rem 0.5rem;
+		max-height: 240px;
+		overflow-y: auto;
+	}
 </style>

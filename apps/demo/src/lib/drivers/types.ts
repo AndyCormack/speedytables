@@ -11,6 +11,8 @@ export interface ColumnSpec {
 	id: string;
 	header: string;
 	type: ColumnType;
+	/** When set, the column gets an enum/set filter UI over these values. */
+	enumValues?: string[];
 }
 
 export interface MountOptions {

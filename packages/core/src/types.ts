@@ -17,6 +17,10 @@ export interface ColumnDef {
 	header?: string;
 	/** Drives sort-key projection: number/date project to Float64Array. Default 'text'. */
 	dataType?: DataType;
+	/** Which filter UI a filter row renders for this column. Default 'text' (contains). */
+	filter?: 'text' | 'enum' | 'none';
+	/** Options for the 'enum' filter UI. The core never reads this. */
+	filterValues?: string[];
 	/** Pixel width. Fixed in M1; resize/reorder land in M6. */
 	width?: number;
 	/** Render-layer formatter. The core never calls this. */

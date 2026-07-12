@@ -30,6 +30,7 @@ function toColDef(col: ColumnSpec): ColDef {
 		field: col.id,
 		headerName: col.header,
 		filter: col.type === 'number' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
+		floatingFilter: true, // per-column filter inputs, matching speedy's Table.FilterRow
 		// enum filters are OR-of-equals conditions (Community has no set filter — Enterprise only)
 		filterParams: { maxNumConditions: 50 },
 		valueFormatter:
