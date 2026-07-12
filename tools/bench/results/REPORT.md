@@ -5,21 +5,21 @@ Metric definitions and caveats: [docs/benchmarking.md](../../docs/benchmarking.m
 
 ## enum-filter — aggrid, 1m rows (median of 3)
 
-_2026-07-12T19:30:23.224Z · commit 3d38592 (dirty) · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:31:10.789Z · commit 43c4072 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
 
 | metric | value |
 | --- | ---: |
-| applyOneOf11Ms | 307.6 |
-| applyFiveOf11Ms | 647.6 |
-| addValueMs | 532.7 |
-| removeValueMs | 483.8 |
-| stackSecondEnumMs | 550.4 |
-| clearAllMs | 683 |
+| applyOneOf11Ms | 296.3 |
+| applyFiveOf11Ms | 647 |
+| addValueMs | 534.3 |
+| removeValueMs | 483.3 |
+| stackSecondEnumMs | 534.1 |
+| clearAllMs | 683.1 |
 | longTaskCount | 6 |
-| longTaskTotalMs | 3156 |
-| longTaskMaxMs | 682 |
-| cdpTaskDurationMs | 4077.21 |
-| cdpJsHeapUsedMB | 534.02 |
+| longTaskTotalMs | 3106 |
+| longTaskMaxMs | 676 |
+| cdpTaskDurationMs | 4000.89 |
+| cdpJsHeapUsedMB | 543.72 |
 
 ## filter-1m — aggrid, 1m rows (median of 3)
 

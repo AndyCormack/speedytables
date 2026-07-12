@@ -1,0 +1,75 @@
+{
+	"meta": {
+		"date": "2026-07-12T19:31:10.789Z",
+		"commit": "43c4072",
+		"dirty": false,
+		"browser": "149.0.7827.55",
+		"node": "v24.18.0",
+		"os": "win32 10.0.26200",
+		"cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+		"cores": 16,
+		"memoryGB": 33.95
+	},
+	"results": [
+		{
+			"scenario": "enum-filter",
+			"grid": "aggrid",
+			"size": "1m",
+			"repeats": 3,
+			"medians": {
+				"applyOneOf11Ms": 296.3,
+				"applyFiveOf11Ms": 647,
+				"addValueMs": 534.3,
+				"removeValueMs": 483.3,
+				"stackSecondEnumMs": 534.1,
+				"clearAllMs": 683.1,
+				"longTaskCount": 6,
+				"longTaskTotalMs": 3106,
+				"longTaskMaxMs": 676,
+				"cdpTaskDurationMs": 4000.89,
+				"cdpJsHeapUsedMB": 543.72
+			},
+			"raw": [
+				{
+					"applyOneOf11Ms": 303.3,
+					"applyFiveOf11Ms": 647,
+					"addValueMs": 532.8,
+					"removeValueMs": 483.3,
+					"stackSecondEnumMs": 550.1,
+					"clearAllMs": 683.1,
+					"longTaskCount": 6,
+					"longTaskTotalMs": 3106,
+					"longTaskMaxMs": 676,
+					"cdpTaskDurationMs": 4000.89,
+					"cdpJsHeapUsedMB": 545.99
+				},
+				{
+					"applyOneOf11Ms": 282,
+					"applyFiveOf11Ms": 646.2,
+					"addValueMs": 534.3,
+					"removeValueMs": 464.8,
+					"stackSecondEnumMs": 534.1,
+					"clearAllMs": 649.4,
+					"longTaskCount": 6,
+					"longTaskTotalMs": 3041,
+					"longTaskMaxMs": 647,
+					"cdpTaskDurationMs": 3931.65,
+					"cdpJsHeapUsedMB": 543.72
+				},
+				{
+					"applyOneOf11Ms": 296.3,
+					"applyFiveOf11Ms": 656.2,
+					"addValueMs": 582.4,
+					"removeValueMs": 483.9,
+					"stackSecondEnumMs": 533.8,
+					"clearAllMs": 716.6,
+					"longTaskCount": 6,
+					"longTaskTotalMs": 3200,
+					"longTaskMaxMs": 702,
+					"cdpTaskDurationMs": 4165.19,
+					"cdpJsHeapUsedMB": 537.68
+				}
+			]
+		}
+	]
+}
