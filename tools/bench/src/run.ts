@@ -6,7 +6,7 @@
  * Assumes the demo app is built (root `pnpm bench` script builds first).
  */
 import { spawn, execSync, type ChildProcess } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
@@ -32,10 +32,30 @@ interface RunResult {
 	scenario: string;
 	grid: string;
 	size: string;
+	/** Version of the grid under test: core version for speedy, ag-grid-community for aggrid. */
+	gridVersion: string;
 	repeats: number;
 	medians: Record<string, number>;
 	raw: Record<string, number>[];
 }
+
+function packageVersion(relPath: string): string {
+	try {
+		return JSON.parse(readFileSync(join(ROOT, relPath, 'package.json'), 'utf8')).version;
+	} catch {
+		return 'unknown';
+	}
+}
+
+/** Versions of everything under test — bench results are linked to these. */
+const VERSIONS: Record<string, string> = {
+	'@speedytables/core': packageVersion('packages/core'),
+	'@speedytables/svelte': packageVersion('packages/svelte'),
+	'ag-grid-community': packageVersion('apps/demo/node_modules/ag-grid-community')
+};
+
+const gridVersion = (grid: string): string =>
+	grid === 'aggrid' ? VERSIONS['ag-grid-community']! : VERSIONS['@speedytables/core']!;
 
 function parseArgs(argv: string[]) {
 	const flags = new Map<string, string>();
@@ -148,12 +168,21 @@ try {
 				console.log(`${((Date.now() - t0) / 1000).toFixed(1)}s`);
 				await context.close();
 			}
-			results.push({ scenario: name, grid, size, repeats: args.repeats, medians: medians(raw), raw });
+			results.push({
+				scenario: name,
+				grid,
+				size,
+				gridVersion: gridVersion(grid),
+				repeats: args.repeats,
+				medians: medians(raw),
+				raw
+			});
 		}
 	}
 
 	const meta = {
 		date: new Date().toISOString(),
+		versions: VERSIONS,
 		commit: git('rev-parse --short HEAD'),
 		dirty: git('status --porcelain') !== '',
 		browser: browser.version(),
@@ -165,7 +194,7 @@ try {
 	};
 	mkdirSync(RESULTS_DIR, { recursive: true });
 	const stamp = meta.date.replace(/[:T]/g, '-').slice(0, 19);
-	const file = join(RESULTS_DIR, `${stamp}-${meta.commit}.json`);
+	const file = join(RESULTS_DIR, `${stamp}-v${VERSIONS['@speedytables/core']}-${meta.commit}.json`);
 	writeFileSync(file, JSON.stringify({ meta, results }, null, '\t'));
 	console.log(`\nWrote ${file}`);
 } finally {

@@ -24,4 +24,5 @@ Headless data grid for Svelte, benchmarked against AG Grid at 1M rows. Benchmark
 - Svelte 5 runes mode only; no Svelte 4 patterns (`export let`, `$:`, `on:click`, stores for component state).
 - TS strict everywhere. Vitest for core (pipeline is pure functions — test them directly, no DOM). Playwright for bench + smoke.
 - Benchmark hygiene: seeded deterministic datasets only, medians over multiple runs, record machine + commit in results.
+- Versioning: core + svelte bump minor in lockstep per shipped milestone (0.1.0 at M1). Bench results embed versions (filename + meta); regenerate REPORT.md + HISTORY.md via `pnpm bench:report --write` after every recorded run.
 - Update `CONTEXT.md` when vocabulary changes; add an ADR only for hard-to-reverse, surprising, real-trade-off decisions.
