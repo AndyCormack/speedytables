@@ -122,19 +122,35 @@ _2026-07-12T20:17:04.627Z · core v0.1.0 · commit ef490c4 (dirty) · AMD Ryzen 
 
 ## sort-1m — aggrid 34.3.1, 1m rows (median of 3)
 
-_2026-07-12T20:16:35.711Z · core v0.1.0 · commit ef490c4 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-20-16-35-v0.1.0-ef490c4.json](2026-07-12-20-16-35-v0.1.0-ef490c4.json)_
+_2026-07-12T20:31:42.974Z · core v0.2.0 · commit 42faa4c (dirty) · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-20-31-42-v0.2.0-42faa4c.json](2026-07-12-20-31-42-v0.2.0-42faa4c.json)_
 
 | metric | value |
 | --- | ---: |
-| sortNumberDescMs | 2244.9 |
-| sortNumberAscMs | 2257.9 |
-| sortTextAscMs | 2599.9 |
-| clearSortMs | 150.1 |
+| sortNumberDescMs | 2187.2 |
+| sortNumberAscMs | 2277.8 |
+| sortTextAscMs | 2600.1 |
+| clearSortMs | 166.5 |
 | longTaskCount | 4 |
-| longTaskTotalMs | 7329 |
-| longTaskMaxMs | 2595 |
-| cdpTaskDurationMs | 8181.37 |
-| cdpJsHeapUsedMB | 513.88 |
+| longTaskTotalMs | 7240 |
+| longTaskMaxMs | 2590 |
+| cdpTaskDurationMs | 8090.23 |
+| cdpJsHeapUsedMB | 521.35 |
+
+## sort-1m — speedy 0.2.0, 1m rows (median of 3)
+
+_2026-07-12T20:31:42.974Z · core v0.2.0 · commit 42faa4c (dirty) · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-20-31-42-v0.2.0-42faa4c.json](2026-07-12-20-31-42-v0.2.0-42faa4c.json)_
+
+| metric | value |
+| --- | ---: |
+| sortNumberDescMs | 250.2 |
+| sortNumberAscMs | 266 |
+| sortTextAscMs | 450 |
+| clearSortMs | 32.8 |
+| longTaskCount | 0 |
+| longTaskTotalMs | 0 |
+| longTaskMaxMs | 0 |
+| cdpTaskDurationMs | 1161.31 |
+| cdpJsHeapUsedMB | 256.49 |
 
 ## wide-grid — aggrid 34.3.1, 10k rows (median of 3)
 

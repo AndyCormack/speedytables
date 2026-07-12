@@ -88,8 +88,10 @@ async function startServer(): Promise<ChildProcess | null> {
 		return null;
 	}
 	console.log('Starting preview server…');
-	const child = spawn('pnpm', ['--filter', 'demo', 'preview', '--', '--port', String(PORT), '--strictPort'], {
-		cwd: ROOT,
+	// spawn vite directly: pnpm's `--` forwarding is unreliable and non-strict
+	// port fallback would leave us polling a port vite silently abandoned
+	const child = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
+		cwd: join(ROOT, 'apps', 'demo'),
 		shell: true,
 		stdio: 'ignore'
 	});
