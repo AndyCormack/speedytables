@@ -17,6 +17,7 @@ Headless data grid for Svelte, benchmarked against AG Grid at 1M rows. Benchmark
 4. **Mutations only via `applyDelta`** keyed by required row id; frame-coalesced. Never diff arrays to find changes (ADR-0004).
 5. **Complexity budget**: full recompute O(N log N), incremental update O(k log N), scroll→window O(1) (fixed row height in v1). Any new O(N)-per-change path is a design bug.
 6. **No feature without a benchmark.** Every perf-relevant change runs `pnpm bench` before/after; results JSON is committed. Scenario pages must work identically for `?grid=speedy` and `?grid=aggrid`.
+6b. **Run `pnpm smoke` after any change to components or grid CSS.** It asserts DOM-geometry invariants (column alignment, popover top-layer, rows visible after scroll jumps) that unit tests and benchmarks can't see.
 7. **README lists a feature only after it ships with recorded numbers.** Keep it user-centric and short; technical depth belongs in docs/adr and .wip.
 
 ## Conventions
