@@ -1,6 +1,7 @@
 import {
 	ClientSideRowModelApiModule,
 	ClientSideRowModelModule,
+	colorSchemeDark,
 	ColumnApiModule,
 	createGrid,
 	ModuleRegistry,
@@ -55,7 +56,8 @@ export function agGridDriver(): GridDriver {
 			container = el;
 			return new Promise<void>((resolve) => {
 				api = createGrid(el, {
-					theme: themeQuartz,
+					theme: themeQuartz.withPart(colorSchemeDark), // demo app is dark-scheme
+
 					columnDefs: columns.map(toColDef),
 					rowData: rows,
 					getRowId: (p) => (p.data as { id: string }).id,

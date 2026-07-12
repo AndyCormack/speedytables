@@ -4,21 +4,23 @@ Visual system for the SpeedyTables demo app. The library itself is headless — 
 
 ## Theme
 
-Instrument, not brochure: compact, crisp, engineered. Light theme (benchmark evidence is read like a document — daylight register). Restrained color strategy: neutral surfaces, one steel-teal accent carrying selection and state only. Minimal rounding (4px controls, 6px overlays). Density over airiness; the grid is the hero.
+Instrument, not brochure: compact, crisp, engineered. Dark scheme app-wide (`color-scheme: dark` at the root — native controls, scrollbars, and popovers render dark): a monitoring-instrument register that suits streaming benchmarks. Deep blue-gray surfaces, never pure black. Restrained color strategy: neutral surfaces, one steel-teal accent carrying selection and state only. Minimal rounding (4px controls, 6px overlays). Density over airiness; the grid is the hero. AG Grid comparison pages run Quartz + `colorSchemeDark` for visual coherence.
 
 ## Colors (OKLCH)
 
+App shell: `--app-bg oklch(0.16 0.01 255)`, `--app-ink oklch(0.93 0.005 250)`, `--app-ink-soft oklch(0.72 0.015 250)`, `--app-accent oklch(0.72 0.1 220)` (defined in `+layout.svelte`).
+
 | Token | Value | Role |
 | --- | --- | --- |
-| `--st-ink` | `oklch(0.28 0.015 255)` | Primary text (≥12:1 on bg) |
-| `--st-ink-soft` | `oklch(0.45 0.02 255)` | Secondary text, placeholders (≥4.5:1) |
-| `--st-bg` | `oklch(1 0 0)` | Content surface |
-| `--st-surface` | `oklch(0.973 0.004 250)` | Header/toolbar layer, row hover |
-| `--st-surface-hover` | `oklch(0.955 0.006 250)` | Hover on the surface layer |
-| `--st-border` | `oklch(0.91 0.007 250)` | Hairlines (row separators) |
-| `--st-border-strong` | `oklch(0.83 0.012 250)` | Structural borders, controls |
-| `--st-accent` | `oklch(0.5 0.11 220)` | Sort state, active filters, focus, selection |
-| `--st-accent-tint` | `oklch(0.96 0.02 220)` | Active-filter fill |
+| `--st-ink` | `oklch(0.93 0.005 250)` | Primary text (≥12:1 on bg) |
+| `--st-ink-soft` | `oklch(0.72 0.015 250)` | Secondary text, placeholders (≥4.5:1) |
+| `--st-bg` | `oklch(0.195 0.012 255)` | Content surface |
+| `--st-surface` | `oklch(0.235 0.012 255)` | Header/toolbar layer, row hover, popover |
+| `--st-surface-hover` | `oklch(0.275 0.014 255)` | Hover on the surface layer |
+| `--st-border` | `oklch(0.29 0.012 255)` | Hairlines (row separators) |
+| `--st-border-strong` | `oklch(0.38 0.015 255)` | Structural borders, controls |
+| `--st-accent` | `oklch(0.72 0.1 220)` | Sort state, active filters, focus, selection |
+| `--st-accent-tint` | `oklch(0.3 0.05 220)` | Active-filter fill |
 
 Deliberately not AG Quartz blue; the cool steel-teal is the identity color.
 

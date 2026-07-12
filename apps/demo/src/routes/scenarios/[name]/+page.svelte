@@ -91,20 +91,21 @@
 		margin: 0.25rem 0;
 	}
 	.meta {
-		color: #666;
+		color: var(--app-ink-soft);
 	}
 	.error {
-		color: #c00;
+		color: oklch(0.72 0.19 25);
 		padding: 0 1rem;
 	}
 	.results {
 		margin: 0.5rem 1rem;
 		border-collapse: collapse;
 		font-size: 0.85rem;
+		font-variant-numeric: tabular-nums;
 	}
 	.results th,
 	.results td {
-		border: 1px solid #ccc;
+		border: 1px solid oklch(0.35 0.012 255);
 		padding: 0.15rem 0.5rem;
 		text-align: left;
 	}
@@ -119,17 +120,17 @@
 	 * (Captured in DESIGN.md.)
 	 */
 	.grid-host {
-		--st-ink: oklch(0.28 0.015 255);
-		--st-ink-soft: oklch(0.45 0.02 255);
-		--st-bg: oklch(1 0 0);
-		--st-surface: oklch(0.973 0.004 250);
-		--st-surface-hover: oklch(0.955 0.006 250);
-		--st-border: oklch(0.91 0.007 250);
-		--st-border-strong: oklch(0.83 0.012 250);
-		--st-accent: oklch(0.5 0.11 220);
-		--st-accent-tint: oklch(0.96 0.02 220);
+		--st-ink: oklch(0.93 0.005 250);
+		--st-ink-soft: oklch(0.72 0.015 250);
+		--st-bg: oklch(0.195 0.012 255);
+		--st-surface: oklch(0.235 0.012 255);
+		--st-surface-hover: oklch(0.275 0.014 255);
+		--st-border: oklch(0.29 0.012 255);
+		--st-border-strong: oklch(0.38 0.015 255);
+		--st-accent: oklch(0.72 0.1 220);
+		--st-accent-tint: oklch(0.3 0.05 220);
 		--st-radius: 4px;
-		--st-focus-ring: 0 0 0 2px oklch(0.5 0.11 220 / 0.3);
+		--st-focus-ring: 0 0 0 2px oklch(0.72 0.1 220 / 0.35);
 		--st-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
 	}
 
@@ -292,15 +293,15 @@
 
 	/* enum panel — rendered in the top layer via the Popover API */
 	:global([data-speedy-enum-panel]) {
-		border: 1px solid oklch(0.83 0.012 250);
+		border: 1px solid oklch(0.38 0.015 255);
 		border-radius: 6px;
-		background: #fff;
-		color: oklch(0.28 0.015 255);
+		background: oklch(0.235 0.012 255);
+		color: oklch(0.93 0.005 250);
 		font-size: 12px;
 		padding: 4px;
 		box-shadow:
-			0 2px 6px oklch(0 0 0 / 0.06),
-			0 8px 24px oklch(0 0 0 / 0.12);
+			0 2px 6px oklch(0 0 0 / 0.3),
+			0 8px 24px oklch(0 0 0 / 0.45);
 		max-height: 280px;
 		overflow-y: auto;
 		opacity: 1;
@@ -331,7 +332,7 @@
 		justify-content: space-between;
 		gap: 12px;
 		padding: 4px 8px 6px;
-		border-bottom: 1px solid oklch(0.91 0.007 250);
+		border-bottom: 1px solid oklch(0.29 0.012 255);
 		margin-bottom: 4px;
 		font-weight: 600;
 	}
@@ -340,16 +341,16 @@
 		background: transparent;
 		font: inherit;
 		font-size: 11px;
-		color: oklch(0.5 0.11 220);
+		color: oklch(0.72 0.1 220);
 		cursor: pointer;
 		padding: 2px 4px;
 		border-radius: 4px;
 	}
 	:global([data-speedy-enum-reset]:hover:not(:disabled)) {
-		background: oklch(0.96 0.02 220);
+		background: oklch(0.3 0.05 220);
 	}
 	:global([data-speedy-enum-reset]:disabled) {
-		color: oklch(0.7 0.01 250);
+		color: oklch(0.5 0.01 250);
 		cursor: default;
 	}
 	:global([data-speedy-enum-option]) {
@@ -362,10 +363,10 @@
 		white-space: nowrap;
 	}
 	:global([data-speedy-enum-option]:hover) {
-		background: oklch(0.973 0.004 250);
+		background: oklch(0.275 0.014 255);
 	}
 	:global([data-speedy-enum-option] input) {
-		accent-color: oklch(0.5 0.11 220);
+		accent-color: oklch(0.72 0.1 220);
 		margin: 0;
 	}
 </style>
