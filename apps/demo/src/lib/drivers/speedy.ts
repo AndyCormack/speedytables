@@ -1,4 +1,5 @@
 import { mount, unmount } from 'svelte';
+import type { Grid } from '@speedytables/core';
 import type { GridDriver } from './types';
 import SpeedyHarness from './SpeedyHarness.svelte';
 
@@ -7,7 +8,7 @@ const notYet = (feature: string, milestone: string) => () => {
 };
 
 export function speedyDriver(): GridDriver {
-	let app: Record<string, unknown> | null = null;
+	let app: { getGrid(): Grid<Record<string, unknown>> } | null = null;
 	let container: HTMLElement | null = null;
 
 	const viewport = (): HTMLElement => {
@@ -29,7 +30,9 @@ export function speedyDriver(): GridDriver {
 			);
 		},
 
-		sortBy: notYet('sorting', 'M2'),
+		async sortBy(columnId, dir) {
+			await app?.getGrid().setSortModel(columnId ? [{ columnId, dir }] : []);
+		},
 		filterContains: notYet('filtering', 'M3'),
 		filterIn: notYet('enum filtering', 'M3'),
 		applyUpdates: notYet('deltas', 'M4'),

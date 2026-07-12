@@ -16,12 +16,23 @@
 			{#if cell}
 				{@render cell(column)}
 			{:else}
+				{@const dir = view.sortDirection(column.id)}
 				<div
 					data-speedy-header-cell
+					data-sort={dir}
 					role="columnheader"
-					style="width:{column.width ?? 150}px; flex:none; overflow:hidden;"
+					tabindex="0"
+					aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : 'none'}
+					style="width:{column.width ?? 150}px; flex:none; overflow:hidden; cursor:pointer; user-select:none;"
+					onclick={() => view.toggleSort(column.id)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							view.toggleSort(column.id);
+						}
+					}}
 				>
-					{column.header ?? column.id}
+					{column.header ?? column.id}{dir === 'asc' ? ' ▲' : dir === 'desc' ? ' ▼' : ''}
 				</div>
 			{/if}
 		{/each}

@@ -1,6 +1,17 @@
+export type DataType = 'text' | 'number' | 'date';
+export type SortDirection = 'asc' | 'desc';
+
+/** Declarative sort descriptor (ADR-0002) — serializable, worker-eligible. */
+export interface SortSpec {
+	columnId: string;
+	dir: SortDirection;
+}
+
 export interface ColumnDef {
 	id: string;
 	header?: string;
+	/** Drives sort-key projection: number/date project to Float64Array. Default 'text'. */
+	dataType?: DataType;
 	/** Pixel width. Fixed in M1; resize/reorder land in M6. */
 	width?: number;
 	/** Render-layer formatter. The core never calls this. */
@@ -16,6 +27,8 @@ export interface GridConfig<Row> {
 	rowHeight?: number;
 	/** Extra rows rendered above/below the visible window. Default 3. */
 	overscan?: number;
+	/** Where pipeline compute runs (ADR-0002). Default: time-sliced main thread. */
+	executor?: import('./executor').Executor;
 }
 
 /** The contiguous slice of pipeline output currently materialized for rendering. */
@@ -33,4 +46,4 @@ export interface PositionSlice {
 	virtualHeight: number;
 }
 
-export type Slice = 'window' | 'position';
+export type Slice = 'window' | 'position' | 'sortModel';

@@ -13,6 +13,7 @@
 		return {
 			id: col.id,
 			header: col.header,
+			dataType: col.type,
 			width: 150,
 			format:
 				col.type === 'date'
@@ -29,6 +30,10 @@
 		data: rows,
 		rowHeight
 	});
+
+	export function getGrid() {
+		return grid;
+	}
 </script>
 
 <Table.Root {grid}>
