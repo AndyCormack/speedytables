@@ -24,6 +24,8 @@ export interface GridDriver {
 	sortBy(columnId: string | null, dir: 'asc' | 'desc'): Promise<void>;
 	/** Text 'contains' filter on one column; empty string clears it. */
 	filterContains(columnId: string, text: string): Promise<void>;
+	/** Enum/set filter: keep rows whose column value is one of `values`; null clears it. */
+	filterIn(columnId: string, values: string[] | null): Promise<void>;
 	/** Update existing rows (matched by `id`). Full row objects. */
 	applyUpdates(rows: object[]): void;
 	/** Vertical scroll container. */

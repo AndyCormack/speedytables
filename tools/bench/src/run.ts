@@ -22,6 +22,7 @@ const SCENARIOS: { name: string; size: string }[] = [
 	{ name: 'initial-render', size: '1m' },
 	{ name: 'sort-1m', size: '1m' },
 	{ name: 'filter-1m', size: '1m' },
+	{ name: 'enum-filter', size: '1m' },
 	{ name: 'scroll-storm', size: '1m' },
 	{ name: 'live-updates', size: '1m' },
 	{ name: 'wide-grid', size: '10k' }

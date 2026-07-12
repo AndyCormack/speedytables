@@ -17,6 +17,8 @@ function toColDef(col: ColumnSpec): ColDef {
 		field: col.id,
 		headerName: col.header,
 		filter: col.type === 'number' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
+		// enum filters are OR-of-equals conditions (Community has no set filter — Enterprise only)
+		filterParams: { maxNumConditions: 50 },
 		valueFormatter:
 			col.type === 'date'
 				? (p) => (p.value == null ? '' : new Date(p.value).toISOString().slice(0, 10))
@@ -63,6 +65,21 @@ export function agGridDriver(): GridDriver {
 			await api.setColumnFilterModel(
 				columnId,
 				text === '' ? null : { filterType: 'text', type: 'contains', filter: text }
+			);
+			api.onFilterChanged();
+		},
+
+		async filterIn(columnId, values) {
+			if (!api) return;
+			await api.setColumnFilterModel(
+				columnId,
+				values === null
+					? null
+					: {
+							filterType: 'text',
+							operator: 'OR',
+							conditions: values.map((v) => ({ filterType: 'text', type: 'equals', filter: v }))
+						}
 			);
 			api.onFilterChanged();
 		},

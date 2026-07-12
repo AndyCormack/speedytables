@@ -1,6 +1,6 @@
 import type { Scenario } from './types';
 import { afterPaint, driveFrames, LongTaskRecorder, measure, median, round } from '$lib/bench';
-import { generateTicks, generateTrades, generateWide } from '$lib/dataset';
+import { generateTicks, generateTrades, generateWide, RATINGS, SECTORS } from '$lib/dataset';
 import { TRADE_COLUMNS } from './columns';
 import type { ColumnSpec } from '$lib/drivers';
 
@@ -63,6 +63,38 @@ const filter1m: Scenario = {
 		};
 		keystrokes.forEach((ms, i) => (result[`keystroke${i + 1}Ms`] = round(ms)));
 		return result;
+	}
+};
+
+const enumFilter: Scenario = {
+	name: 'enum-filter',
+	description: 'Set-style filters on enum columns (sector, rating): apply, widen, narrow, stack, clear.',
+	defaultSize: '1m',
+	async run({ driver, el, size }) {
+		await driver.mount(el, TRADE_COLUMNS, generateTrades(size));
+		const longTasks = new LongTaskRecorder();
+		longTasks.start();
+		const five = SECTORS.slice(0, 5) as unknown as string[];
+		const applyOneOf11Ms = await measure('enum-one', () => driver.filterIn('sector', ['Technology']));
+		const applyFiveOf11Ms = await measure('enum-five', () => driver.filterIn('sector', five));
+		const addValueMs = await measure('enum-add', () => driver.filterIn('sector', [...five, SECTORS[5]!]));
+		const removeValueMs = await measure('enum-remove', () => driver.filterIn('sector', five));
+		const stackSecondEnumMs = await measure('enum-stack', () =>
+			driver.filterIn('rating', RATINGS.slice(0, 3) as unknown as string[])
+		);
+		const clearAllMs = await measure('enum-clear', async () => {
+			await driver.filterIn('rating', null);
+			await driver.filterIn('sector', null);
+		});
+		return {
+			applyOneOf11Ms: round(applyOneOf11Ms),
+			applyFiveOf11Ms: round(applyFiveOf11Ms),
+			addValueMs: round(addValueMs),
+			removeValueMs: round(removeValueMs),
+			stackSecondEnumMs: round(stackSecondEnumMs),
+			clearAllMs: round(clearAllMs),
+			...longTasks.stop()
+		};
 	}
 };
 
@@ -145,5 +177,5 @@ const wideGrid: Scenario = {
 };
 
 export const scenarios: Record<string, Scenario> = Object.fromEntries(
-	[initialRender, sort1m, filter1m, scrollStorm, liveUpdates, wideGrid].map((s) => [s.name, s])
+	[initialRender, sort1m, filter1m, enumFilter, scrollStorm, liveUpdates, wideGrid].map((s) => [s.name, s])
 );

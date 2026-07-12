@@ -14,7 +14,7 @@ _None shipped yet. Features appear here as they land — each with its benchmark
 
 ## Benchmarks
 
-Scenario pages live in the demo app and run against both grids. Results history: `tools/bench/results/`.
+Scenario pages live in the demo app and run against both grids. Latest results: [`tools/bench/results/REPORT.md`](tools/bench/results/REPORT.md); raw history in the same directory, metric definitions in [`docs/benchmarking.md`](docs/benchmarking.md).
 
 ```sh
 pnpm install
