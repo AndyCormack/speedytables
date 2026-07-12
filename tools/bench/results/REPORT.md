@@ -86,39 +86,39 @@ _2026-07-12T20:16:35.711Z · core v0.1.0 · commit ef490c4 · AMD Ryzen 7 9800X3
 
 ## scroll-storm — aggrid 34.3.1, 1m rows (median of 3)
 
-_2026-07-12T20:16:35.711Z · core v0.1.0 · commit ef490c4 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-20-16-35-v0.1.0-ef490c4.json](2026-07-12-20-16-35-v0.1.0-ef490c4.json)_
+_2026-07-12T20:52:42.258Z · core v0.2.1 · commit 137db79 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-20-52-42-v0.2.1-137db79.json](2026-07-12-20-52-42-v0.2.1-137db79.json)_
 
 | metric | value |
 | --- | ---: |
-| frames | 240 |
-| frameAvgMs | 16.66 |
+| frames | 241 |
+| frameAvgMs | 16.63 |
 | frameP95Ms | 18.1 |
-| frameMaxMs | 37.4 |
-| framesOver16Pct | 25 |
-| framesOver33Pct | 0.42 |
+| frameMaxMs | 41.2 |
+| framesOver16Pct | 31.12 |
+| framesOver33Pct | 0.41 |
 | longTaskCount | 0 |
 | longTaskTotalMs | 0 |
 | longTaskMaxMs | 0 |
-| cdpTaskDurationMs | 2220.32 |
-| cdpJsHeapUsedMB | 534.79 |
+| cdpTaskDurationMs | 2436.91 |
+| cdpJsHeapUsedMB | 522.95 |
 
-## scroll-storm — speedy 0.1.0, 1m rows (median of 3)
+## scroll-storm — speedy 0.2.1, 1m rows (median of 3)
 
-_2026-07-12T20:17:04.627Z · core v0.1.0 · commit ef490c4 (dirty) · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-20-17-04-v0.1.0-ef490c4.json](2026-07-12-20-17-04-v0.1.0-ef490c4.json)_
+_2026-07-12T20:52:42.258Z · core v0.2.1 · commit 137db79 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-20-52-42-v0.2.1-137db79.json](2026-07-12-20-52-42-v0.2.1-137db79.json)_
 
 | metric | value |
 | --- | ---: |
 | frames | 240 |
-| frameAvgMs | 16.66 |
-| frameP95Ms | 18 |
-| frameMaxMs | 18.5 |
-| framesOver16Pct | 27.5 |
+| frameAvgMs | 16.67 |
+| frameP95Ms | 18.1 |
+| frameMaxMs | 18.8 |
+| framesOver16Pct | 30 |
 | framesOver33Pct | 0 |
 | longTaskCount | 0 |
 | longTaskTotalMs | 0 |
 | longTaskMaxMs | 0 |
-| cdpTaskDurationMs | 672.96 |
-| cdpJsHeapUsedMB | 239.63 |
+| cdpTaskDurationMs | 788.8 |
+| cdpJsHeapUsedMB | 240.39 |
 
 ## sort-1m — aggrid 34.3.1, 1m rows (median of 3)
 
