@@ -17,6 +17,8 @@ Numbers are medians at 1,000,000 rows vs AG Grid Community on identical data ([f
 
 - **Sorting** (v0.2.0) — sorting a million rows takes ~250ms on numbers and ~450ms on text, 6–9× faster than AG Grid (2.2–2.6s) — and the UI never freezes: work runs in ~12ms slices, so the grid stays scrollable mid-sort with zero main-thread stalls. AG Grid blocks the page for up to 2.6s per sort.
 
+- **Filtering** (v0.3.0) — typing into a text filter over a million rows: the first keystroke scans everything in ~114ms, and every following keystroke refines only the previous matches — under two frames (~33ms), vs 232–376ms per keystroke for AG Grid. Enum/set filters apply in 30–66ms vs 259–667ms. All of it without ever freezing the page (AG Grid blocks up to 656ms per filter).
+
 Comparisons use a deliberately minimal, production-configured AG Grid (see [fairness notes](docs/benchmarking.md)).
 
 ## Benchmarks
