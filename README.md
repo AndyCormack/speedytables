@@ -19,7 +19,7 @@ Numbers are medians at 1,000,000 rows vs AG Grid Community on identical data ([f
 
 - **Filtering** (v0.3.0) — typing into a text filter over a million rows: the first keystroke scans everything in ~114ms, and every following keystroke refines only the previous matches — under two frames (~33ms), vs 232–376ms per keystroke for AG Grid. Enum/set filters apply in 30–66ms vs 259–667ms. All of it without ever freezing the page (AG Grid blocks up to 656ms per filter).
 
-- **Live updates** (v0.4.0) — streaming 1,000 row updates per second into a million sorted + filtered rows, the grid holds 60fps and applies 99.8% of ticks on time, with zero main-thread stalls. AG Grid under the same load renders ~3 frames per second (worst stall: 4.2s) and falls behind on a quarter of the updates. Updates go through an explicit `applyDelta` API keyed by row id, coalesced per frame.
+- **Live updates** (v0.4.0) — streaming 1,000 row updates per second into a million sorted + filtered rows, the grid holds 60fps and applies 99.8% of ticks on time, with zero main-thread stalls. AG Grid under the same load renders ~3 frames per second (worst stall: 4.2s) and falls behind on a third of the updates. Updates go through an explicit `applyDelta` API keyed by row id, coalesced per frame.
 
 Comparisons use a deliberately minimal, production-configured AG Grid (see [fairness notes](docs/benchmarking.md)).
 

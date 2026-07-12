@@ -125,7 +125,9 @@ const liveUpdates: Scenario = {
 		const rowsById = new Map(rows.map((r) => [r.id, r]));
 		await driver.mount(el, TRADE_COLUMNS, rows);
 		await driver.sortBy('price', 'desc');
-		await driver.filterContains('sector', 'e');
+		// free-text contains on a genuinely free-text column — enum columns
+		// (sector etc.) would realistically use set filters, not substring scans
+		await driver.filterContains('company', 'a');
 
 		const durationMs = 5000;
 		const ticks = generateTicks(size, (1000 * durationMs) / 1000);
