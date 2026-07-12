@@ -15,15 +15,16 @@ const MERGE_YIELD_MASK = 0xffff; // yield every 64k merged elements
  * pairwise, yielding throughout — no single slice of work exceeds the executor's
  * budget. Ties break by source index, so output is deterministic and stable.
  * O(N log N) total, same as a blocking sort; it just never blocks.
+ *
+ * `input` is the candidate set (e.g. the filter stage's output); it is copied,
+ * never mutated.
  */
-export function* sortIndexJob(keys: SortKey[], length: number): Job<Uint32Array> {
+export function* sortIndexJob(keys: SortKey[], input: Uint32Array): Job<Uint32Array> {
 	const compare = buildComparator(keys);
+	const length = input.length;
 
-	let source = new Uint32Array(length);
-	for (let i = 0; i < length; i++) {
-		source[i] = i;
-		if ((i & MERGE_YIELD_MASK) === 0) yield;
-	}
+	let source = input.slice();
+	yield;
 
 	for (let lo = 0; lo < length; lo += CHUNK) {
 		source.subarray(lo, Math.min(lo + CHUNK, length)).sort(compare);

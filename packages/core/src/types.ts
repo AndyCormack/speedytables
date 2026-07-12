@@ -7,6 +7,11 @@ export interface SortSpec {
 	dir: SortDirection;
 }
 
+/** Declarative filter descriptors (ADR-0002) — serializable, worker-eligible. Specs AND together. */
+export type FilterSpec =
+	| { columnId: string; type: 'contains'; value: string } // case-insensitive text
+	| { columnId: string; type: 'in'; values: string[] }; // enum/set membership (exact)
+
 export interface ColumnDef {
 	id: string;
 	header?: string;
@@ -46,4 +51,4 @@ export interface PositionSlice {
 	virtualHeight: number;
 }
 
-export type Slice = 'window' | 'position' | 'sortModel';
+export type Slice = 'window' | 'position' | 'sortModel' | 'filterModel';

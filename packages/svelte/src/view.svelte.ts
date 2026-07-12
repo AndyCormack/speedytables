@@ -1,4 +1,4 @@
-import type { Grid, PositionSlice, SortSpec, WindowSlice } from '@speedytables/core';
+import type { FilterSpec, Grid, PositionSlice, SortSpec, WindowSlice } from '@speedytables/core';
 
 export type RowData = Record<string, unknown>;
 
@@ -11,6 +11,7 @@ export class GridView {
 	window = $state.raw<WindowSlice<RowData>>({ firstRow: 0, count: 0, rows: [] });
 	position = $state.raw<PositionSlice>({ blockTop: 0, virtualHeight: 0 });
 	sortModel = $state.raw<SortSpec[]>([]);
+	filterModel = $state.raw<FilterSpec[]>([]);
 	/** Horizontal scroll offset, for header sync. Purely a render concern. */
 	scrollLeft = $state(0);
 
@@ -23,7 +24,8 @@ export class GridView {
 		this.#unsubscribe = [
 			grid.subscribe('window', () => (this.window = grid.window)),
 			grid.subscribe('position', () => (this.position = grid.position)),
-			grid.subscribe('sortModel', () => (this.sortModel = grid.sortModel))
+			grid.subscribe('sortModel', () => (this.sortModel = grid.sortModel)),
+			grid.subscribe('filterModel', () => (this.filterModel = grid.filterModel))
 		];
 	}
 

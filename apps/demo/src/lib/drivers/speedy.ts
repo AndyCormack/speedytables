@@ -1,5 +1,5 @@
 import { mount, unmount } from 'svelte';
-import type { Grid } from '@speedytables/core';
+import type { FilterSpec, Grid } from '@speedytables/core';
 import type { GridDriver } from './types';
 import SpeedyHarness from './SpeedyHarness.svelte';
 
@@ -10,6 +10,10 @@ const notYet = (feature: string, milestone: string) => () => {
 export function speedyDriver(): GridDriver {
 	let app: { getGrid(): Grid<Record<string, unknown>> } | null = null;
 	let container: HTMLElement | null = null;
+	// GridDriver filter ops are per-column merges (AG Grid semantics); the grid
+	// takes the whole declarative model, so track specs per column here.
+	const filters = new Map<string, FilterSpec>();
+	const applyFilters = () => app?.getGrid().setFilterModel([...filters.values()]) ?? Promise.resolve();
 
 	const viewport = (): HTMLElement => {
 		const el = container?.querySelector<HTMLElement>('[data-speedy-viewport]');
@@ -33,8 +37,17 @@ export function speedyDriver(): GridDriver {
 		async sortBy(columnId, dir) {
 			await app?.getGrid().setSortModel(columnId ? [{ columnId, dir }] : []);
 		},
-		filterContains: notYet('filtering', 'M3'),
-		filterIn: notYet('enum filtering', 'M3'),
+		async filterContains(columnId, text) {
+			if (text === '') filters.delete(columnId);
+			else filters.set(columnId, { columnId, type: 'contains', value: text });
+			await applyFilters();
+		},
+
+		async filterIn(columnId, values) {
+			if (values === null) filters.delete(columnId);
+			else filters.set(columnId, { columnId, type: 'in', values });
+			await applyFilters();
+		},
 		applyUpdates: notYet('deltas', 'M4'),
 
 		scrollElement: viewport,

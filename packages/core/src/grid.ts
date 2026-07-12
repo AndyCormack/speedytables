@@ -3,7 +3,15 @@ import { MainThreadExecutor, type Executor, type Job } from './executor';
 import { RowPipeline } from './pipeline';
 import { sortIndexJob, type SortKey } from './sort';
 import { computeWindow } from './viewport';
-import type { ColumnDef, GridConfig, PositionSlice, Slice, SortSpec, WindowSlice } from './types';
+import type {
+	ColumnDef,
+	FilterSpec,
+	GridConfig,
+	PositionSlice,
+	Slice,
+	SortSpec,
+	WindowSlice
+} from './types';
 
 export class Grid<Row> {
 	readonly columns: ColumnDef[];
@@ -18,7 +26,8 @@ export class Grid<Row> {
 	#viewportHeight = 0;
 
 	#sortModel: SortSpec[] = [];
-	#sortAbort: AbortController | null = null;
+	#filterModel: FilterSpec[] = [];
+	#rebuildAbort: AbortController | null = null;
 
 	#window: WindowSlice<Row> = { firstRow: 0, count: 0, rows: [] };
 	#position: PositionSlice = { blockTop: 0, virtualHeight: 0 };
@@ -49,47 +58,65 @@ export class Grid<Row> {
 		return this.#sortModel;
 	}
 
+	get filterModel(): FilterSpec[] {
+		return this.#filterModel;
+	}
+
 	setData(rows: Row[]): void {
 		this.#pipeline.setSource(rows);
 		this.#recompute(true);
-		// projections were invalidated with the source; reapply any active sort
-		if (this.#sortModel.length > 0) void this.setSortModel(this.#sortModel);
+		// all stage caches were invalidated with the source; reapply active models
+		if (this.#sortModel.length > 0 || this.#filterModel.length > 0) void this.#rebuild(true);
 	}
 
 	/**
 	 * Declarative sort (ADR-0002). Resolves once the sorted window is applied.
-	 * A newer call aborts an in-flight sort at its next slice point. While the
-	 * sort runs, the grid keeps serving the previous order — never blocks.
+	 * While the pipeline rebuilds, the grid keeps serving the previous output —
+	 * it never blocks.
 	 */
-	async setSortModel(model: SortSpec[]): Promise<void> {
+	setSortModel(model: SortSpec[]): Promise<void> {
 		this.#sortModel = model;
 		this.#emitter.notify('sortModel');
-		this.#sortAbort?.abort();
+		return this.#rebuild(false);
+	}
 
-		if (model.length === 0) {
-			this.#sortAbort = null;
-			this.#pipeline.setSortedIndex(null);
-			this.#recompute(true);
-			return;
-		}
+	/** Declarative filter (ADR-0002). Resolves once the filtered window is applied. */
+	setFilterModel(model: FilterSpec[]): Promise<void> {
+		this.#filterModel = model;
+		this.#emitter.notify('filterModel');
+		return this.#rebuild(true);
+	}
 
-		const abort = (this.#sortAbort = new AbortController());
+	/**
+	 * Recomputes invalidated pipeline stages in order (filter → sort). A newer
+	 * call aborts an in-flight rebuild at its next slice point; a sort-only
+	 * change reuses the cached filter output.
+	 */
+	async #rebuild(filterDirty: boolean): Promise<void> {
+		this.#rebuildAbort?.abort();
+		const abort = (this.#rebuildAbort = new AbortController());
+
 		const pipeline = this.#pipeline;
 		const columns = this.columns;
-		const job = function* (): Job<Uint32Array> {
+		const filterModel = this.#filterModel;
+		const sortModel = this.#sortModel;
+
+		const job = function* (): Job<Uint32Array | null> {
+			if (filterDirty) yield* pipeline.filterJob(filterModel, columns);
+			if (sortModel.length === 0) return null;
 			const keys: SortKey[] = [];
-			for (const spec of model) {
+			for (const spec of sortModel) {
 				const column = columns.find((c) => c.id === spec.columnId);
 				if (!column) throw new Error(`Unknown sort column: ${spec.columnId}`);
 				keys.push({ projection: yield* pipeline.projectionJob(column), dir: spec.dir });
 			}
-			return yield* sortIndexJob(keys, pipeline.length);
+			return yield* sortIndexJob(keys, yield* pipeline.candidatesJob());
 		};
 
 		try {
-			const index = await this.#executor.run(job(), abort.signal);
+			const sorted = await this.#executor.run(job(), abort.signal);
 			if (abort.signal.aborted) return;
-			this.#pipeline.setSortedIndex(index);
+			this.#pipeline.setSortedIndex(sorted);
 			this.#recompute(true);
 		} catch (error) {
 			if (error instanceof DOMException && error.name === 'AbortError') return;

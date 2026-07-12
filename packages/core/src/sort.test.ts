@@ -4,8 +4,10 @@ import { sortIndexJob, type SortKey } from './sort';
 
 const executor = new MainThreadExecutor();
 
+const identity = (n: number): Uint32Array => Uint32Array.from({ length: n }, (_, i) => i);
+
 function run(keys: SortKey[], length: number): Promise<Uint32Array> {
-	return executor.run(sortIndexJob(keys, length));
+	return executor.run(sortIndexJob(keys, identity(length)));
 }
 
 const numbers = (values: number[]): Float64Array => Float64Array.from(values);
@@ -77,7 +79,18 @@ describe('sortIndexJob', () => {
 		const controller = new AbortController();
 		controller.abort();
 		await expect(
-			executor.run(sortIndexJob([{ projection: numbers([2, 1]), dir: 'asc' }], 2), controller.signal)
+			executor.run(
+				sortIndexJob([{ projection: numbers([2, 1]), dir: 'asc' }], identity(2)),
+				controller.signal
+			)
 		).rejects.toThrow('aborted');
+	});
+
+	it('sorts a filtered subset without mutating the input', async () => {
+		const input = Uint32Array.from([4, 1, 3]); // candidate subset from a filter stage
+		const values = numbers([9, 50, 9, 10, 30]);
+		const index = await executor.run(sortIndexJob([{ projection: values, dir: 'asc' }], input));
+		expect([...index]).toEqual([3, 4, 1]); // 10, 30, 50
+		expect([...input]).toEqual([4, 1, 3]);
 	});
 });
