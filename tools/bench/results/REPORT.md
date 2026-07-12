@@ -1,11 +1,11 @@
 # Benchmark report
 
 Newest recorded run per scenario/grid/size. Regenerate with `pnpm bench:report --write`.
-Metric definitions and caveats: [docs/benchmarking.md](../../docs/benchmarking.md).
+Metric definitions and caveats: [docs/benchmarking.md](../../docs/benchmarking.md). Full log: [HISTORY.md](HISTORY.md).
 
 ## enum-filter — aggrid, 1m rows (median of 3)
 
-_2026-07-12T19:31:10.789Z · commit 43c4072 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:31:10.789Z · commit 43c4072 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-19-31-10-43c4072.json](2026-07-12-19-31-10-43c4072.json)_
 
 | metric | value |
 | --- | ---: |
@@ -23,7 +23,7 @@ _2026-07-12T19:31:10.789Z · commit 43c4072 · AMD Ryzen 7 9800X3D 8-Core Proces
 
 ## filter-1m — aggrid, 1m rows (median of 3)
 
-_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-19-17-02-47804c9.json](2026-07-12-19-17-02-47804c9.json)_
 
 | metric | value |
 | --- | ---: |
@@ -45,7 +45,7 @@ _2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Proces
 
 ## initial-render — aggrid, 1m rows (median of 3)
 
-_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-19-17-02-47804c9.json](2026-07-12-19-17-02-47804c9.json)_
 
 | metric | value |
 | --- | ---: |
@@ -56,7 +56,7 @@ _2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Proces
 
 ## live-updates — aggrid, 1m rows (median of 3)
 
-_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-19-17-02-47804c9.json](2026-07-12-19-17-02-47804c9.json)_
 
 | metric | value |
 | --- | ---: |
@@ -75,7 +75,7 @@ _2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Proces
 
 ## scroll-storm — aggrid, 1m rows (median of 3)
 
-_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-19-17-02-47804c9.json](2026-07-12-19-17-02-47804c9.json)_
 
 | metric | value |
 | --- | ---: |
@@ -93,7 +93,7 @@ _2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Proces
 
 ## sort-1m — aggrid, 1m rows (median of 3)
 
-_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-19-17-02-47804c9.json](2026-07-12-19-17-02-47804c9.json)_
 
 | metric | value |
 | --- | ---: |
@@ -107,22 +107,22 @@ _2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Proces
 | cdpTaskDurationMs | 9291.41 |
 | cdpJsHeapUsedMB | 517.31 |
 
-## wide-grid — aggrid, 10k rows (median of 3)
+## wide-grid — aggrid 34.3.1, 10k rows (median of 3)
 
-_2026-07-12T19:17:02.605Z · commit 47804c9 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55_
+_2026-07-12T19:39:33.819Z · core v0.0.0 · commit 032ae3b · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-12-19-39-33-v0.0.0-032ae3b.json](2026-07-12-19-39-33-v0.0.0-032ae3b.json)_
 
 | metric | value |
 | --- | ---: |
 | frames | 181 |
-| frameAvgMs | 16.61 |
+| frameAvgMs | 16.63 |
 | frameP95Ms | 18 |
-| frameMaxMs | 18.6 |
-| framesOver16Pct | 33.15 |
+| frameMaxMs | 18.7 |
+| framesOver16Pct | 29.28 |
 | framesOver33Pct | 0 |
-| sortMs | 48.7 |
+| sortMs | 49.5 |
 | longTaskCount | 0 |
 | longTaskTotalMs | 0 |
 | longTaskMaxMs | 0 |
-| cdpTaskDurationMs | 580.85 |
-| cdpJsHeapUsedMB | 80.6 |
+| cdpTaskDurationMs | 595.72 |
+| cdpJsHeapUsedMB | 82.98 |
 
