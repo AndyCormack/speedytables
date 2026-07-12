@@ -6,11 +6,14 @@ Every feature ships with recorded benchmark numbers against [AG Grid](https://gi
 
 ## Status
 
-Pre-alpha. The benchmark infrastructure lands first so every feature that follows has honest before/after numbers.
+Pre-alpha. Rendering shipped (v0.1.0); sorting, filtering, and live updates are next — each lands here only once it has benchmark numbers.
 
 ## Features
 
-_None shipped yet. Features appear here as they land — each with its benchmark results._
+Numbers are medians at 1,000,000 rows vs AG Grid Community on identical data ([full report](tools/bench/results/REPORT.md)).
+
+- **Virtualized rendering** (v0.1.0) — a million rows mount in ~40ms (AG Grid: ~765ms) using ~half the memory. Works in any browser regardless of scroll-height limits.
+- **Smooth scrolling at 1M rows** (v0.1.0) — a sustained full-height scroll sweep holds a locked 60fps with zero main-thread stalls (worst frame: 19ms). AG Grid averages 34ms per frame with stalls up to 194ms.
 
 ## Benchmarks
 
