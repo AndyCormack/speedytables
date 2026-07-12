@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+.wip/
+tools/bench/results/
+**/.svelte-kit/
+**/dist/
+**/build/

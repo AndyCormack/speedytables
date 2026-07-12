@@ -1,0 +1,76 @@
+# SpeedyTables
+
+A headless, high-performance data grid for Svelte (with framework adapters as a goal), benchmarked against AG Grid at up to 1M rows. This glossary is the project's ubiquitous language.
+
+## Language
+
+### Data flow
+
+**Grid**:
+One table instance: source rows + columns + features, producing a windowed view.
+_Avoid_: table (reserved for the component namespace `Table.*`)
+
+**Row pipeline**:
+The fixed, ordered sequence of transforms a Grid applies to source rows: source → filter → sort → window.
+_Avoid_: data flow, processing chain
+
+**Stage**:
+One step of the row pipeline. Pure, memoized; reruns only when its inputs are invalidated, at most once per change.
+
+**Window**:
+The contiguous slice of pipeline output currently materialized for rendering.
+_Avoid_: viewport rows, visible rows
+
+**Full recompute**:
+A pipeline pass from an invalidated stage onward (e.g. O(N log N) when the sort comparator changes).
+
+**Incremental update**:
+Patching a delta into the existing filtered+sorted output without a full pass; O(log N) per row.
+
+### Extension & execution
+
+**Feature**:
+A pluggable unit of grid behavior (sorting, filtering, …) that supplies a stage implementation and/or column behavior. Wired explicitly at Grid construction; an absent Feature costs nothing.
+_Avoid_: plugin, module, extension
+
+**Executor**:
+The injected strategy deciding where pipeline stages run: main-thread time-sliced, or web worker. The pipeline itself is thread-agnostic.
+
+**Declarative operation**:
+A sort/filter expressed as serializable data (column id + direction/operator + value) rather than a function. Only declarative operations can run on the worker executor.
+
+**Columnar projection**:
+Per-column typed arrays of sort/filter keys extracted from source rows, so stages never walk row objects.
+
+### Adapters
+
+**Adapter**:
+A framework-specific package mapping the core's subscription surface onto that framework's reactivity (Svelte runes in v1). Adapters contain no grid logic.
+_Avoid_: wrapper, binding
+
+**Slice**:
+One independently-subscribable unit of grid state (sort model, window, scroll metrics, …). Notifications are per-slice; payloads are window-sized, never dataset-sized.
+
+### Mutation
+
+**Client row model**:
+All source rows in browser memory; the pipeline runs locally. v1's only row model.
+
+**Delta**:
+An explicit batch of row mutations (insert / update / remove, keyed by row id). The only input to the incremental update path.
+_Avoid_: transaction (AG Grid's term; ours differs in shape)
+
+**Row id**:
+Stable, consumer-supplied identity for a row. Required. What deltas and incremental patches key on.
+
+**Coalescing**:
+Batching all deltas received within one animation frame into a single pipeline patch.
+
+### Benchmarking
+
+**Scenario**:
+A demo-app page that is simultaneously a working example and a benchmark: instrumented with performance marks, drivable by the harness against both SpeedyTables and AG Grid on identical data.
+_Avoid_: example page, demo (alone)
+
+**Baseline**:
+Recorded AG Grid results for a scenario, captured before/independently of our implementation. Every feature ships with numbers against a baseline.

@@ -1,0 +1,82 @@
+import {
+	AllCommunityModule,
+	createGrid,
+	ModuleRegistry,
+	themeQuartz,
+	type ColDef,
+	type GridApi
+} from 'ag-grid-community';
+import type { ColumnSpec, GridDriver, MountOptions } from './types';
+
+ModuleRegistry.registerModules([AllCommunityModule]);
+
+export const AG_GRID_VERSION = '34.3.1';
+
+function toColDef(col: ColumnSpec): ColDef {
+	return {
+		field: col.id,
+		headerName: col.header,
+		filter: col.type === 'number' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
+		valueFormatter:
+			col.type === 'date'
+				? (p) => (p.value == null ? '' : new Date(p.value).toISOString().slice(0, 10))
+				: undefined
+	};
+}
+
+export function agGridDriver(): GridDriver {
+	let api: GridApi | null = null;
+	let container: HTMLElement | null = null;
+
+	const viewport = (selector: string): HTMLElement => {
+		const el = container?.querySelector<HTMLElement>(selector);
+		if (!el) throw new Error(`AG Grid viewport not found: ${selector}`);
+		return el;
+	};
+
+	return {
+		mount(el, columns, rows, opts?: MountOptions) {
+			container = el;
+			return new Promise<void>((resolve) => {
+				api = createGrid(el, {
+					theme: themeQuartz,
+					columnDefs: columns.map(toColDef),
+					rowData: rows,
+					getRowId: (p) => (p.data as { id: string }).id,
+					rowHeight: opts?.rowHeight ?? 32,
+					headerHeight: 32,
+					animateRows: false,
+					onFirstDataRendered: () => resolve()
+				});
+			});
+		},
+
+		async sortBy(columnId, dir) {
+			api?.applyColumnState({
+				state: columnId ? [{ colId: columnId, sort: dir }] : [],
+				defaultState: { sort: null }
+			});
+		},
+
+		async filterContains(columnId, text) {
+			if (!api) return;
+			await api.setColumnFilterModel(
+				columnId,
+				text === '' ? null : { filterType: 'text', type: 'contains', filter: text }
+			);
+			api.onFilterChanged();
+		},
+
+		applyUpdates(rows) {
+			api?.applyTransactionAsync({ update: rows });
+		},
+
+		scrollElement: () => viewport('.ag-body-viewport'),
+		hScrollElement: () => viewport('.ag-center-cols-viewport'),
+
+		destroy() {
+			api?.destroy();
+			api = null;
+		}
+	};
+}

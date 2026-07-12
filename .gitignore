@@ -1,0 +1,13 @@
+# working docs — never tracked (see .wip/plan.md → Docs decision)
+.wip/
+
+node_modules/
+dist/
+build/
+.svelte-kit/
+*.local
+.env
+.env.*
+!.env.example
+playwright-report/
+test-results/

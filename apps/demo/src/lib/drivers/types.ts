@@ -1,0 +1,36 @@
+/**
+ * GridDriver — the contract every benchmarked grid implements, so scenario
+ * pages run identically against AG Grid and SpeedyTables.
+ * Methods apply the operation; scenarios wrap calls in `measure()` to time
+ * apply + paint uniformly.
+ */
+
+export type ColumnType = 'text' | 'number' | 'date';
+
+export interface ColumnSpec {
+	id: string;
+	header: string;
+	type: ColumnType;
+}
+
+export interface MountOptions {
+	rowHeight?: number;
+}
+
+export interface GridDriver {
+	/** Resolves once the first window of rows has rendered. */
+	mount(el: HTMLElement, columns: ColumnSpec[], rows: object[], opts?: MountOptions): Promise<void>;
+	/** Single-column sort; null clears sorting. */
+	sortBy(columnId: string | null, dir: 'asc' | 'desc'): Promise<void>;
+	/** Text 'contains' filter on one column; empty string clears it. */
+	filterContains(columnId: string, text: string): Promise<void>;
+	/** Update existing rows (matched by `id`). Full row objects. */
+	applyUpdates(rows: object[]): void;
+	/** Vertical scroll container. */
+	scrollElement(): HTMLElement;
+	/** Horizontal scroll container. */
+	hScrollElement(): HTMLElement;
+	destroy(): void;
+}
+
+export type GridName = 'aggrid' | 'speedy';
