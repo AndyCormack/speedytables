@@ -9,9 +9,25 @@
 	const view = getTableContext();
 	let el: HTMLDivElement;
 
-	function onscroll() {
+	let rafPending = false;
+
+	function syncScroll() {
 		view.scrollLeft = el.scrollLeft;
 		view.grid.setScrollTop(el.scrollTop);
+	}
+
+	// Scroll events for programmatic scrolls fire one frame late, so rows would
+	// lag (or blank out) behind fast scrollbar drags and driven scrolls. Re-read
+	// the position once per frame via rAF — registered only on scroll activity,
+	// and rAF order runs it after any same-frame scrollTop mutation.
+	function onscroll() {
+		syncScroll();
+		if (rafPending) return;
+		rafPending = true;
+		requestAnimationFrame(() => {
+			rafPending = false;
+			syncScroll();
+		});
 	}
 
 	$effect(() => {
