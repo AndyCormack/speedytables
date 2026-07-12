@@ -1,14 +1,27 @@
 import {
-	AllCommunityModule,
+	ClientSideRowModelApiModule,
+	ClientSideRowModelModule,
+	ColumnApiModule,
 	createGrid,
 	ModuleRegistry,
+	NumberFilterModule,
+	TextFilterModule,
 	themeQuartz,
 	type ColDef,
 	type GridApi
 } from 'ag-grid-community';
 import type { ColumnSpec, GridDriver, MountOptions } from './types';
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+// Minimal production module set — only what the scenarios exercise. Deliberately
+// NOT AllCommunityModule: that bundles ValidationModule (dev-mode option
+// validation), which AG Grid's own docs say to exclude in production.
+ModuleRegistry.registerModules([
+	ClientSideRowModelModule,
+	ClientSideRowModelApiModule, // applyTransactionAsync
+	ColumnApiModule, // applyColumnState (sorting)
+	TextFilterModule,
+	NumberFilterModule
+]);
 
 export const AG_GRID_VERSION = '34.3.1';
 
@@ -48,6 +61,7 @@ export function agGridDriver(): GridDriver {
 					rowHeight: opts?.rowHeight ?? 32,
 					headerHeight: 32,
 					animateRows: false,
+					rowBuffer: 3, // match speedy's overscan: 3 (AG default is 10)
 					onFirstDataRendered: () => resolve()
 				});
 			});
