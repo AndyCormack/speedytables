@@ -52,8 +52,9 @@ export class Grid<Row> {
 		this.getRowId = config.getRowId;
 		this.#overscan = config.overscan ?? 3;
 		this.#executor = config.executor ?? new MainThreadExecutor();
-		if ((config.compute === 'worker' || config.compute === 'hybrid') && workerSupported()) {
-			this.#compute = config.compute;
+		const compute = config.compute ?? 'hybrid'; // measured best all-rounder (ADR-0002)
+		if ((compute === 'worker' || compute === 'hybrid') && workerSupported()) {
+			this.#compute = compute;
 			this.#bridge = new WorkerBridge();
 		}
 		if (config.data) this.#pipeline.setSource(config.data);

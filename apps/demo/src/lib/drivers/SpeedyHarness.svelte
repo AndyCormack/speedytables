@@ -7,7 +7,7 @@
 		columns,
 		rows,
 		rowHeight,
-		compute = 'main-thread'
+		compute = 'hybrid'
 	}: {
 		columns: ColumnSpec[];
 		rows: Record<string, unknown>[];

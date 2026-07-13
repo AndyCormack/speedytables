@@ -21,9 +21,10 @@
 	const scenario = $derived(data.scenario);
 	const gridName = $derived((page.url.searchParams.get('grid') ?? 'aggrid') as GridName);
 	const sizeKey = $derived((page.url.searchParams.get('size') ?? scenario.defaultSize) as SizeKey);
+	// hybrid is the library default (measured best all-rounder) — the demo mirrors it
 	const exec = $derived.by(() => {
 		const value = page.url.searchParams.get('exec');
-		return value === 'worker' || value === 'hybrid' ? value : 'main';
+		return value === 'worker' || value === 'main' ? value : 'hybrid';
 	});
 	/** storage bucket: each executor is a separate speedy variant in the comparison */
 	const speedyStoreKey = $derived(
@@ -64,7 +65,8 @@
 		const grid = param === 'grid' ? value : gridName;
 		const size = param === 'size' ? value : sizeKey;
 		const ex = param === 'exec' ? value : exec;
-		const execParam = grid === 'speedy' && ex !== 'main' ? `&exec=${ex}` : '';
+		// hybrid is the default → omitted; main/worker are explicit
+		const execParam = grid === 'speedy' && ex !== 'hybrid' ? `&exec=${ex}` : '';
 		// toggles are view state, not navigation — keep them out of history
 		void goto(`?grid=${grid}&size=${size}${execParam}`, {
 			replaceState: true,
@@ -85,8 +87,8 @@
 			driver?.destroy();
 			container.replaceChildren();
 			driver = drivers[gridName](
-				gridName === 'speedy' && exec !== 'main'
-					? { compute: exec === 'hybrid' ? 'hybrid' : 'worker' }
+				gridName === 'speedy'
+					? { compute: exec === 'main' ? 'main-thread' : exec === 'worker' ? 'worker' : 'hybrid' }
 					: undefined
 			);
 			const results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });

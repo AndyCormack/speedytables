@@ -179,7 +179,8 @@ try {
 		const size = args.size ?? spec.size;
 		for (const grid of args.grids) {
 			const exec = grid === 'speedy' ? args.exec : 'main';
-			const execParam = grid === 'speedy' && exec !== 'main' ? `&exec=${exec}` : '';
+			// always explicit: the page's no-param default is hybrid
+			const execParam = grid === 'speedy' ? `&exec=${exec}` : '';
 			const url = `${BASE}/scenarios/${name}?grid=${grid}&size=${size}${execParam}`;
 			const raw: Record<string, number>[] = [];
 			for (let i = 0; i < args.repeats; i++) {

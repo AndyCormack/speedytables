@@ -30,7 +30,7 @@ export function speedyDriver(options?: DriverOptions): GridDriver {
 					columns,
 					rows: rows as Record<string, unknown>[],
 					rowHeight: opts?.rowHeight ?? 32,
-					compute: options?.compute ?? 'main-thread'
+					compute: options?.compute ?? 'hybrid'
 				}
 			});
 			// parity with the AG Grid driver's onFirstDataRendered: resolve after paint

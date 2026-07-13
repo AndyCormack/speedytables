@@ -40,14 +40,14 @@ export interface GridConfig<Row> {
 	/** Where pipeline compute runs (ADR-0002). Default: time-sliced main thread. */
 	executor?: import('./executor').Executor;
 	/**
-	 * Where declarative rebuilds run. 'worker': filter + sort on a web worker
-	 * mirror (main thread idle; text columns pay a one-time clone into the
-	 * worker). 'hybrid': filter on the time-sliced main thread (projections and
-	 * the typeahead refinement cache stay local), sort on the worker fed by the
-	 * filter's candidate indices — usually the best of both, and the smallest
-	 * worker heap (only sorted columns are mirrored). Both fall back to
-	 * 'main-thread' where Workers don't exist (SSR, tests). Deltas always patch
-	 * on the main thread.
+	 * Where declarative rebuilds run. Default 'hybrid' (measured best
+	 * all-rounder): filter on the time-sliced main thread (projections and the
+	 * typeahead refinement cache stay local), sort on a web worker fed by the
+	 * filter's candidate indices — main-thread filter latency, worker sort CPU
+	 * profile, near-zero worker heap for filtering. 'worker' additionally moves
+	 * filtering off-thread (text columns pay a one-time clone into the worker).
+	 * Worker modes fall back to 'main-thread' where Workers don't exist (SSR,
+	 * tests). Deltas always patch on the main thread.
 	 */
 	compute?: 'main-thread' | 'worker' | 'hybrid';
 }
