@@ -31,6 +31,8 @@ interface RunResult {
 	scenario: string;
 	grid: string;
 	size: string;
+	/** Executor under test (speedy only): 'main' (time-sliced) or 'worker'. */
+	exec: 'main' | 'worker';
 	/** Version of the grid under test: core version for speedy, ag-grid-community for aggrid. */
 	gridVersion: string;
 	repeats: number;
@@ -68,7 +70,8 @@ function parseArgs(argv: string[]) {
 		names: names.length ? names : SCENARIOS.map((s) => s.name),
 		grids: (flags.get('grid') ?? 'aggrid').split(','),
 		size: flags.get('size'),
-		repeats: Number(flags.get('repeats') ?? 3)
+		repeats: Number(flags.get('repeats') ?? 3),
+		exec: (flags.get('exec') === 'worker' ? 'worker' : 'main') as 'main' | 'worker'
 	};
 }
 
@@ -129,12 +132,14 @@ try {
 		if (!spec) throw new Error(`Unknown scenario: ${name}`);
 		const size = args.size ?? spec.size;
 		for (const grid of args.grids) {
-			const url = `${BASE}/scenarios/${name}?grid=${grid}&size=${size}`;
+			const exec = grid === 'speedy' ? args.exec : 'main';
+			const execParam = grid === 'speedy' && exec === 'worker' ? '&exec=worker' : '';
+			const url = `${BASE}/scenarios/${name}?grid=${grid}&size=${size}${execParam}`;
 			const raw: Record<string, number>[] = [];
 			for (let i = 0; i < args.repeats; i++) {
 				const context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
 				const page = await context.newPage();
-				process.stdout.write(`${name} [${grid}, ${size}] run ${i + 1}/${args.repeats}… `);
+				process.stdout.write(`${name} [${grid}${execParam ? '+worker' : ''}, ${size}] run ${i + 1}/${args.repeats}… `);
 				const t0 = Date.now();
 				raw.push(await runOnce(page, url));
 				console.log(`${((Date.now() - t0) / 1000).toFixed(1)}s`);
@@ -144,6 +149,7 @@ try {
 				scenario: name,
 				grid,
 				size,
+				exec,
 				gridVersion: gridVersion(grid),
 				repeats: args.repeats,
 				medians: medians(raw),

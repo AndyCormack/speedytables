@@ -27,6 +27,7 @@ interface Run {
 	scenario: string;
 	grid: string;
 	size: string;
+	exec?: 'main' | 'worker';
 	gridVersion?: string;
 	repeats: number;
 	medians: Record<string, number>;
@@ -48,14 +49,19 @@ if (files.length === 0) {
 	process.exit(1);
 }
 
-const gridLabel = (run: Run): string => `${run.grid}${run.gridVersion ? ` ${run.gridVersion}` : ''}`;
+const gridLabel = (run: Run): string =>
+	`${run.grid}${run.exec === 'worker' ? ' (worker)' : ''}${run.gridVersion ? ` ${run.gridVersion}` : ''}`;
 
 // --- REPORT.md: later files overwrite earlier ones per key ---
 
 const latest = new Map<string, { run: Run; meta: Meta; file: string }>();
 for (const file of files) {
 	for (const run of file.results) {
-		latest.set(`${run.scenario}|${run.grid}|${run.size}`, { run, meta: file.meta, file: file.name });
+		latest.set(`${run.scenario}|${run.grid}|${run.exec ?? 'main'}|${run.size}`, {
+			run,
+			meta: file.meta,
+			file: file.name
+		});
 	}
 }
 

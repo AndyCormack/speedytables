@@ -38,3 +38,8 @@ export interface GridDriver {
 }
 
 export type GridName = 'aggrid' | 'speedy';
+
+export interface DriverOptions {
+	/** speedy only: where pipeline compute runs. aggrid ignores it. */
+	compute?: 'main-thread' | 'worker';
+}

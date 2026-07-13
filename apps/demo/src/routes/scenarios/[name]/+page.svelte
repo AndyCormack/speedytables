@@ -17,6 +17,9 @@
 	const scenario = $derived(data.scenario);
 	const gridName = $derived((page.url.searchParams.get('grid') ?? 'aggrid') as GridName);
 	const sizeKey = $derived((page.url.searchParams.get('size') ?? scenario.defaultSize) as SizeKey);
+	const exec = $derived(page.url.searchParams.get('exec') === 'worker' ? 'worker' : 'main');
+	/** storage bucket: worker runs are a separate speedy variant in the comparison */
+	const speedyStoreKey = $derived(exec === 'worker' ? 'speedy-worker' : 'speedy');
 
 	// baseline first: test the grid we're comparing against, then the improvement
 	const GRIDS: { id: GridName; label: string }[] = [
@@ -36,16 +39,22 @@
 		void storedVersion;
 		void page.url; // re-read after navigation
 		return {
-			speedy: loadRun(scenario.name, sizeKey, 'speedy'),
+			speedy: loadRun(scenario.name, sizeKey, speedyStoreKey),
 			aggrid: loadRun(scenario.name, sizeKey, 'aggrid')
 		};
 	});
 
-	function select(param: 'grid' | 'size', value: string) {
+	function select(param: 'grid' | 'size' | 'exec', value: string) {
 		const grid = param === 'grid' ? value : gridName;
 		const size = param === 'size' ? value : sizeKey;
+		const ex = param === 'exec' ? value : exec;
+		const execParam = grid === 'speedy' && ex === 'worker' ? '&exec=worker' : '';
 		// toggles are view state, not navigation — keep them out of history
-		void goto(`?grid=${grid}&size=${size}`, { replaceState: true, keepFocus: true, noScroll: true });
+		void goto(`?grid=${grid}&size=${size}${execParam}`, {
+			replaceState: true,
+			keepFocus: true,
+			noScroll: true
+		});
 	}
 
 	function clearStored() {
@@ -59,9 +68,11 @@
 		try {
 			driver?.destroy();
 			container.replaceChildren();
-			driver = drivers[gridName]();
+			driver = drivers[gridName](
+				gridName === 'speedy' && exec === 'worker' ? { compute: 'worker' } : undefined
+			);
 			const results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });
-			saveRun(scenario.name, sizeKey, gridName, results);
+			saveRun(scenario.name, sizeKey, gridName === 'speedy' ? speedyStoreKey : 'aggrid', results);
 			storedVersion++;
 			return results;
 		} catch (e) {
@@ -74,7 +85,7 @@
 
 	$effect(() => {
 		// Contract with tools/bench: the runner waits for window.__scenario, calls run().
-		const handle = { name: scenario.name, grid: gridName, size: sizeKey, run };
+		const handle = { name: scenario.name, grid: gridName, size: sizeKey, exec, run };
 		(window as unknown as Record<string, unknown>).__scenario = handle;
 		return () => {
 			driver?.destroy();
@@ -106,6 +117,22 @@
 				</label>
 			{/each}
 		</div>
+		{#if gridName === 'speedy'}
+			<div class="seg" role="radiogroup" aria-label="Compute">
+				{#each [{ id: 'main', label: 'Main thread' }, { id: 'worker', label: 'Worker' }] as opt (opt.id)}
+					<label class="seg-option" class:active={exec === opt.id}>
+						<input
+							type="radio"
+							name="exec"
+							value={opt.id}
+							checked={exec === opt.id}
+							onchange={() => select('exec', opt.id)}
+						/>
+						<span>{opt.label}</span>
+					</label>
+				{/each}
+			</div>
+		{/if}
 		<div class="seg" role="radiogroup" aria-label="Row count">
 			{#each Object.keys(SIZES) as key (key)}
 				<label class="seg-option" class:active={sizeKey === key}>
@@ -144,7 +171,7 @@
 					{#if stored.aggrid}<span class="when">{relativeTime(stored.aggrid.date)}</span>{/if}
 				</th>
 				<th class:current={gridName === 'speedy'}>
-					SpeedyTables
+					SpeedyTables{exec === 'worker' ? ' (worker)' : ''}
 					{#if stored.speedy}<span class="when">{relativeTime(stored.speedy.date)}</span>{/if}
 				</th>
 				<th class="delta-head">Δ</th>

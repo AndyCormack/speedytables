@@ -4,6 +4,7 @@
 export { createGrid, Grid } from './grid';
 export { MainThreadExecutor } from './executor';
 export type { Executor, Job } from './executor';
+export { WorkerBridge, workerSupported } from './worker-bridge';
 export { computeWindow, virtualHeight, MAX_CANVAS_PX } from './viewport';
 export type { ViewportInput, ViewportWindow } from './viewport';
 export type {

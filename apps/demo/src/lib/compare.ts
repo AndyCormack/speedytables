@@ -3,19 +3,22 @@
  * Results are stored per (scenario, size, grid) so runs survive grid switches
  * and page reloads, enabling a side-by-side diff.
  */
-import type { GridName } from './drivers';
+/** 'speedy-worker' is the worker-executor variant of speedy. */
+export type StoreVariant = 'aggrid' | 'speedy' | 'speedy-worker';
 
 export interface StoredRun {
 	results: Record<string, number>;
 	date: string;
 }
 
-const storageKey = (scenario: string, size: string, grid: GridName) =>
-	`st-results:${scenario}:${size}:${grid}`;
+const VARIANTS: StoreVariant[] = ['aggrid', 'speedy', 'speedy-worker'];
 
-export function loadRun(scenario: string, size: string, grid: GridName): StoredRun | null {
+const storageKey = (scenario: string, size: string, variant: StoreVariant) =>
+	`st-results:${scenario}:${size}:${variant}`;
+
+export function loadRun(scenario: string, size: string, variant: StoreVariant): StoredRun | null {
 	try {
-		return JSON.parse(localStorage.getItem(storageKey(scenario, size, grid)) ?? 'null');
+		return JSON.parse(localStorage.getItem(storageKey(scenario, size, variant)) ?? 'null');
 	} catch {
 		return null;
 	}
@@ -24,18 +27,17 @@ export function loadRun(scenario: string, size: string, grid: GridName): StoredR
 export function saveRun(
 	scenario: string,
 	size: string,
-	grid: GridName,
+	variant: StoreVariant,
 	results: Record<string, number>
 ): void {
 	localStorage.setItem(
-		storageKey(scenario, size, grid),
+		storageKey(scenario, size, variant),
 		JSON.stringify({ results, date: new Date().toISOString() } satisfies StoredRun)
 	);
 }
 
 export function clearRuns(scenario: string, size: string): void {
-	localStorage.removeItem(storageKey(scenario, size, 'speedy'));
-	localStorage.removeItem(storageKey(scenario, size, 'aggrid'));
+	for (const variant of VARIANTS) localStorage.removeItem(storageKey(scenario, size, variant));
 }
 
 /** Higher is better only for throughput metrics; everything else is time/blocking/memory. */

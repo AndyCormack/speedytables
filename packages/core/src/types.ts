@@ -39,6 +39,12 @@ export interface GridConfig<Row> {
 	overscan?: number;
 	/** Where pipeline compute runs (ADR-0002). Default: time-sliced main thread. */
 	executor?: import('./executor').Executor;
+	/**
+	 * 'worker' runs declarative filter/sort rebuilds on a web worker mirror,
+	 * leaving the main thread idle. Falls back to 'main-thread' where Workers
+	 * don't exist (SSR, tests). Deltas always patch on the main thread.
+	 */
+	compute?: 'main-thread' | 'worker';
 }
 
 /**

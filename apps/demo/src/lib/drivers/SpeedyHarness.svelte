@@ -6,8 +6,14 @@
 	let {
 		columns,
 		rows,
-		rowHeight
-	}: { columns: ColumnSpec[]; rows: Record<string, unknown>[]; rowHeight: number } = $props();
+		rowHeight,
+		compute = 'main-thread'
+	}: {
+		columns: ColumnSpec[];
+		rows: Record<string, unknown>[];
+		rowHeight: number;
+		compute?: 'main-thread' | 'worker';
+	} = $props();
 
 	function toColumnDef(col: ColumnSpec): ColumnDef {
 		return {
@@ -30,7 +36,8 @@
 		columns: columns.map(toColumnDef),
 		getRowId: (row) => row.id as string,
 		data: rows,
-		rowHeight
+		rowHeight,
+		compute
 	});
 
 	export function getGrid() {

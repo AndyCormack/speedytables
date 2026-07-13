@@ -22,11 +22,22 @@ export class RowPipeline<Row> {
 	#sorted: Uint32Array | null = null;
 	#predicate: ((sourceIndex: number) => boolean) | null = null;
 	#idIndex: Map<string, number> | null = null;
+	#dataVersion = 0;
+
+	/** Bumped on any source mutation — the worker mirror re-syncs projections when it changes. */
+	get dataVersion(): number {
+		return this.#dataVersion;
+	}
+
+	get hasPredicate(): boolean {
+		return this.#predicate !== null;
+	}
 
 	setSource(rows: Row[]): void {
 		// shallow copy: deltas patch the source in place, and that must never
 		// reach back into the consumer's array
 		this.#source = rows.slice();
+		this.#dataVersion++;
 		this.#identity = null;
 		this.#projections.clear();
 		this.#lower.clear();
@@ -53,6 +64,7 @@ export class RowPipeline<Row> {
 	appendRows(rows: Row[], getRowId: (row: Row) => string): void {
 		const base = this.#source.length;
 		this.#source.push(...rows);
+		this.#dataVersion++;
 		this.#invalidateStages();
 		if (this.#idIndex) {
 			for (let i = 0; i < rows.length; i++) this.#idIndex.set(getRowId(rows[i]!), base + i);
@@ -63,6 +75,7 @@ export class RowPipeline<Row> {
 	removeByIds(ids: string[], getRowId: (row: Row) => string): void {
 		const gone = new Set(ids);
 		this.#source = this.#source.filter((row) => !gone.has(getRowId(row)));
+		this.#dataVersion++;
 		this.#invalidateStages();
 		this.#idIndex = null; // indices shifted
 	}
@@ -117,14 +130,8 @@ export class RowPipeline<Row> {
 	 * When the new model provably narrows the previous one (typeahead), only the
 	 * previous matches are re-scanned instead of the full source.
 	 */
-	*filterJob(model: FilterSpec[], columns: ColumnDef[]): Job<void> {
-		if (model.length === 0) {
-			this.#filtered = null;
-			this.#filterCache = null;
-			this.#predicate = null;
-			return;
-		}
-
+	/** Builds the AND-of-specs predicate over cached projections (shared by filter + patch hydration). */
+	*predicateJob(model: FilterSpec[], columns: ColumnDef[]): Job<(sourceIndex: number) => boolean> {
 		const tests: ((sourceIndex: number) => boolean)[] = [];
 		for (const spec of model) {
 			const column = columns.find((c) => c.id === spec.columnId);
@@ -147,10 +154,27 @@ export class RowPipeline<Row> {
 				tests.push((i) => allowed.has(projection[i]!));
 			}
 		}
-		const predicate = (i: number): boolean => {
+		return (i: number): boolean => {
 			for (const test of tests) if (!test(i)) return false;
 			return true;
 		};
+	}
+
+	/** Hydrates the incremental-patch predicate without running the filter (worker-mode deltas). */
+	*ensurePredicateJob(model: FilterSpec[], columns: ColumnDef[]): Job<void> {
+		if (this.#predicate || model.length === 0) return;
+		this.#predicate = yield* this.predicateJob(model, columns);
+	}
+
+	*filterJob(model: FilterSpec[], columns: ColumnDef[]): Job<void> {
+		if (model.length === 0) {
+			this.#filtered = null;
+			this.#filterCache = null;
+			this.#predicate = null;
+			return;
+		}
+
+		const predicate = yield* this.predicateJob(model, columns);
 
 		const refinable = this.#filterCache && narrows(this.#filterCache.model, model);
 		const candidates = refinable ? this.#filterCache!.result : yield* this.identityJob();
@@ -179,6 +203,8 @@ export class RowPipeline<Row> {
 		const sortInserts: number[] = [];
 		const filterRemovals = new Set<number>();
 		const filterInserts: number[] = [];
+
+		this.#dataVersion++; // worker projection mirrors are now stale
 
 		for (const { index, row } of entries) {
 			const wasIn = predicate ? predicate(index) : true;
@@ -224,6 +250,18 @@ export class RowPipeline<Row> {
 	/** Candidate indices for the sort stage: the filtered set, or all rows. */
 	*candidatesJob(): Job<Uint32Array> {
 		return this.#filtered ?? (yield* this.identityJob());
+	}
+
+	/**
+	 * Adopts stage outputs computed elsewhere (the worker mirror). The patch
+	 * predicate is cleared — worker-mode deltas hydrate it on demand via
+	 * ensurePredicateJob.
+	 */
+	adoptStages(filtered: Uint32Array | null, sorted: Uint32Array | null, model: FilterSpec[]): void {
+		this.#filtered = filtered;
+		this.#filterCache = filtered ? { model, result: filtered } : null;
+		this.#sorted = sorted;
+		this.#predicate = null;
 	}
 
 	setSortedIndex(index: Uint32Array | null): void {

@@ -3,6 +3,7 @@ import { MainThreadExecutor, type Executor, type Job } from './executor';
 import { RowPipeline } from './pipeline';
 import { buildComparator, sortIndexJob, type SortKey } from './sort';
 import { computeWindow } from './viewport';
+import { WorkerBridge, workerSupported } from './worker-bridge';
 import type {
 	ColumnDef,
 	Delta,
@@ -27,6 +28,7 @@ export class Grid<Row> {
 	#pipeline = new RowPipeline<Row>();
 	#emitter = new SliceEmitter();
 	#executor: Executor;
+	#bridge: WorkerBridge | null = null;
 	#overscan: number;
 	#scrollTop = 0;
 	#viewportHeight = 0;
@@ -49,8 +51,16 @@ export class Grid<Row> {
 		this.getRowId = config.getRowId;
 		this.#overscan = config.overscan ?? 3;
 		this.#executor = config.executor ?? new MainThreadExecutor();
+		if (config.compute === 'worker' && workerSupported()) this.#bridge = new WorkerBridge();
 		if (config.data) this.#pipeline.setSource(config.data);
 		this.#recompute();
+	}
+
+	/** Releases the worker (if any) and cancels in-flight work. */
+	destroy(): void {
+		this.#rebuildAbort?.abort();
+		this.#bridge?.dispose();
+		this.#bridge = null;
 	}
 
 	get window(): WindowSlice<Row> {
@@ -147,6 +157,24 @@ export class Grid<Row> {
 		}
 		if (byIndex.size === 0) return;
 
+		// worker mode: stage outputs were adopted without main-side patch state —
+		// hydrate the predicate and sort keys once, then patch as usual
+		if (this.#filterModel.length > 0 && !this.#pipeline.hasPredicate) {
+			await this.#executor.run(this.#pipeline.ensurePredicateJob(this.#filterModel, this.columns));
+		}
+		if (this.#sortModel.length > 0 && !this.#sortKeys) {
+			const keys: SortKey[] = [];
+			for (const spec of this.#sortModel) {
+				const column = this.columns.find((c) => c.id === spec.columnId);
+				if (!column) continue;
+				keys.push({
+					projection: await this.#executor.run(this.#pipeline.projectionJob(column)),
+					dir: spec.dir
+				});
+			}
+			this.#sortKeys = keys;
+		}
+
 		const comparator = this.#sortKeys ? buildComparator(this.#sortKeys) : null;
 		this.#pipeline.patch(
 			[...byIndex.entries()].map(([index, row]) => ({ index, row })),
@@ -162,6 +190,8 @@ export class Grid<Row> {
 	 * change reuses the cached filter output.
 	 */
 	#rebuild(filterDirty: boolean): Promise<void> {
+		if (this.#bridge) return this.#rebuildWorker();
+
 		this.#rebuildAbort?.abort();
 		const abort = (this.#rebuildAbort = new AbortController());
 
@@ -194,6 +224,51 @@ export class Grid<Row> {
 				throw error;
 			} finally {
 				// only the newest rebuild owns the pointer
+				if (this.#rebuildAbort === abort) this.#rebuildPromise = null;
+			}
+		})();
+		this.#rebuildPromise = run;
+		return run;
+	}
+
+	/**
+	 * Worker-mode rebuild: sync referenced projections to the worker mirror
+	 * (skipped when its copies are current), post the declarative models, adopt
+	 * the returned index arrays. The main thread only pays projection
+	 * extraction (sliced) and transfer; the O(N log N) work happens off-thread.
+	 */
+	#rebuildWorker(): Promise<void> {
+		this.#rebuildAbort?.abort();
+		const abort = (this.#rebuildAbort = new AbortController());
+		const pipeline = this.#pipeline;
+
+		const run = (async () => {
+			try {
+				const referenced = new Set([
+					...this.#filterModel.map((f) => f.columnId),
+					...this.#sortModel.map((s) => s.columnId)
+				]);
+				for (const columnId of referenced) {
+					const column = this.columns.find((c) => c.id === columnId);
+					if (!column) throw new Error(`Unknown column: ${columnId}`);
+					const projection = await this.#executor.run(pipeline.projectionJob(column), abort.signal);
+					this.#bridge!.sendProjection(columnId, projection, pipeline.dataVersion);
+				}
+				const result = await this.#bridge!.rebuild(
+					pipeline.length,
+					pipeline.dataVersion,
+					this.#filterModel,
+					this.#sortModel
+				);
+				if (abort.signal.aborted) return;
+				pipeline.adoptStages(result.filtered, result.sorted, this.#filterModel);
+				this.#sortKeys = null; // patch state rehydrates on demand (flush path)
+				this.#recompute(true);
+			} catch (error) {
+				if (abort.signal.aborted) return;
+				if (error instanceof DOMException && error.name === 'AbortError') return;
+				throw error;
+			} finally {
 				if (this.#rebuildAbort === abort) this.#rebuildPromise = null;
 			}
 		})();
