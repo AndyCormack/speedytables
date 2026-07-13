@@ -23,6 +23,8 @@ Numbers are medians at 1,000,000 rows vs AG Grid Community on identical data ([f
 
 - **Worker execution** (v0.5.1) — flip a toggle and heavy compute runs on a web worker: sorting a million rows drops main-thread work from ~1.3s of slices to ~0.3s (results identical, wall time equal or better — text sorts up to 18% faster). Three modes ship, all benchmarked: main-thread, full worker, and **hybrid** (filters stay on the main thread where their data lives, sorts go to the worker) — hybrid keeps first-keystroke latency at main-thread speed *and* keeps the worker's memory near zero for filtering (0.3MB vs ~99MB in full-worker mode). Hybrid is the default.
 
+- **Column controls & wide grids** (v0.6.0) — drag to resize, drag headers to reorder, hide/show columns from a per-column menu. Columns are virtualized like rows: a 150-column grid renders only the ~13 in view, holds 60fps on a full-width sweep, and sorts in 33ms vs AG Grid's 49ms on the same data.
+
 Comparisons use a deliberately minimal, production-configured AG Grid (see [fairness notes](docs/benchmarking.md)).
 
 ## Benchmarks

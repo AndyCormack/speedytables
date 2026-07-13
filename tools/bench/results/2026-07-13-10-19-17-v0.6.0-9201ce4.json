@@ -1,0 +1,82 @@
+{
+	"meta": {
+		"date": "2026-07-13T10:19:17.932Z",
+		"versions": {
+			"@speedytables/core": "0.6.0",
+			"@speedytables/svelte": "0.6.0",
+			"ag-grid-community": "34.3.1"
+		},
+		"commit": "9201ce4",
+		"dirty": true,
+		"browser": "149.0.7827.55",
+		"node": "v24.18.0",
+		"os": "win32 10.0.26200",
+		"cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+		"cores": 16,
+		"memoryGB": 33.95
+	},
+	"results": [
+		{
+			"scenario": "scroll-storm",
+			"grid": "speedy",
+			"size": "1m",
+			"exec": "main",
+			"gridVersion": "0.6.0",
+			"repeats": 3,
+			"medians": {
+				"frames": 240,
+				"frameAvgMs": 16.66,
+				"frameP95Ms": 18,
+				"frameMaxMs": 19.1,
+				"framesOver16Pct": 32.5,
+				"framesOver33Pct": 0,
+				"longTaskCount": 0,
+				"longTaskTotalMs": 0,
+				"longTaskMaxMs": 0,
+				"cdpTaskDurationMs": 871.63,
+				"cdpJsHeapUsedMB": 245.63
+			},
+			"raw": [
+				{
+					"frames": 240,
+					"frameAvgMs": 16.66,
+					"frameP95Ms": 17.55,
+					"frameMaxMs": 19.13,
+					"framesOver16Pct": 32.08,
+					"framesOver33Pct": 0,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 898.28,
+					"cdpJsHeapUsedMB": 245.63
+				},
+				{
+					"frames": 240,
+					"frameAvgMs": 16.66,
+					"frameP95Ms": 18,
+					"frameMaxMs": 18.17,
+					"framesOver16Pct": 32.5,
+					"framesOver33Pct": 0,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 871.63,
+					"cdpJsHeapUsedMB": 245.54
+				},
+				{
+					"frames": 240,
+					"frameAvgMs": 16.67,
+					"frameP95Ms": 18.09,
+					"frameMaxMs": 19.1,
+					"framesOver16Pct": 36.67,
+					"framesOver33Pct": 0,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 852.21,
+					"cdpJsHeapUsedMB": 245.73
+				}
+			]
+		}
+	]
+}
