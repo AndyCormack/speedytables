@@ -85,7 +85,24 @@ try {
 	await page.waitForTimeout(100);
 	check('Esc closes popover', (await panel.count()) === 0);
 
-	// 4. vertical scroll shows in-window rows (blank-viewport regression)
+	// 4. filter-to-zero then clear, with a sort active, must restore all rows
+	//    (worker/hybrid regression: rebuild used post-filter length for the
+	//    worker's identity set, leaving the grid empty forever)
+	await page.locator('[data-speedy-header-label]', { hasText: 'Price' }).click();
+	await page.waitForTimeout(400);
+	const companyFilter = page.locator('[data-speedy-filter-input][aria-label="Filter Company"]');
+	await companyFilter.fill('zzzznothing');
+	await page.waitForTimeout(400);
+	const emptied = await page.$$eval('[data-speedy-row]', (rows) => rows.length);
+	check('filter-to-zero empties the grid', emptied === 0, `${emptied} rows`);
+	await companyFilter.fill('');
+	await page.waitForTimeout(500);
+	const restored = await page.$$eval('[data-speedy-row]', (rows) => rows.length);
+	check('clearing the filter restores rows (sorted, hybrid)', restored > 10, `${restored} rows`);
+	await page.locator('[data-speedy-header-label]', { hasText: 'Price' }).click(); // back to no sort
+	await page.waitForTimeout(300);
+
+	// 5. vertical scroll shows in-window rows (blank-viewport regression)
 	await page.$eval('[data-speedy-viewport]', (el) => (el.scrollTop = 100_000));
 	await page.waitForTimeout(200);
 	const covered = await page.evaluate(() => {

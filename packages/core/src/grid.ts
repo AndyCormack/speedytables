@@ -381,7 +381,7 @@ export class Grid<Row> {
 					await this.#bridge!.sendProjection(columnId, projection, pipeline.dataVersion);
 				}
 				const result = await this.#bridge!.rebuild(
-					pipeline.length,
+					pipeline.sourceLength,
 					pipeline.dataVersion,
 					this.#filterModel,
 					this.#sortModel
@@ -438,7 +438,7 @@ export class Grid<Row> {
 						? await this.#executor.run(pipeline.candidatesJob(), abort.signal)
 						: undefined; // unfiltered: the worker uses its own identity, nothing to transfer
 				const result = await this.#bridge!.rebuild(
-					pipeline.length,
+					pipeline.sourceLength,
 					pipeline.dataVersion,
 					[],
 					this.#sortModel,

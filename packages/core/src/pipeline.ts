@@ -273,6 +273,15 @@ export class RowPipeline<Row> {
 		return (this.#sorted ?? this.#filtered)?.length ?? this.#source.length;
 	}
 
+	/**
+	 * Number of source rows, independent of stage state. Worker rebuilds MUST
+	 * use this (not `length`): after a filter-to-zero, `length` is 0 and an
+	 * identity candidate set built from it would empty the grid permanently.
+	 */
+	get sourceLength(): number {
+		return this.#source.length;
+	}
+
 	/** Rows [start, start + count) of pipeline output. */
 	window(start: number, count: number): Row[] {
 		const index = this.#sorted ?? this.#filtered;
