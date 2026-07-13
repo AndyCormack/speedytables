@@ -30,7 +30,7 @@ Patching a delta into the existing filtered+sorted output without a full pipelin
 ### Extension & execution
 
 **Feature**:
-A pluggable unit of grid behavior (sorting, filtering, …) that supplies a stage implementation and/or column behavior. Wired explicitly at Grid construction; an absent Feature costs nothing.
+A unit of grid behavior (sorting, filtering, …) implemented as one fixed pipeline stage plus optional column behavior. Stages are hard-wired, not registered: worker rebuilds are declarative, so stage logic must exist on both sides of the thread boundary (see the ADR-0001 amendment). An absent Feature still costs nothing — an empty model short-circuits its stage.
 _Avoid_: plugin, module, extension
 
 **Executor**:
