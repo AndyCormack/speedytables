@@ -18,9 +18,10 @@
 	const gridName = $derived((page.url.searchParams.get('grid') ?? 'aggrid') as GridName);
 	const sizeKey = $derived((page.url.searchParams.get('size') ?? scenario.defaultSize) as SizeKey);
 
+	// baseline first: test the grid we're comparing against, then the improvement
 	const GRIDS: { id: GridName; label: string }[] = [
-		{ id: 'speedy', label: 'SpeedyTables' },
-		{ id: 'aggrid', label: 'AG Grid' }
+		{ id: 'aggrid', label: 'AG Grid' },
+		{ id: 'speedy', label: 'SpeedyTables' }
 	];
 
 	let container: HTMLElement;
@@ -43,7 +44,8 @@
 	function select(param: 'grid' | 'size', value: string) {
 		const grid = param === 'grid' ? value : gridName;
 		const size = param === 'size' ? value : sizeKey;
-		void goto(`?grid=${grid}&size=${size}`);
+		// toggles are view state, not navigation — keep them out of history
+		void goto(`?grid=${grid}&size=${size}`, { replaceState: true, keepFocus: true, noScroll: true });
 	}
 
 	function clearStored() {
@@ -86,6 +88,7 @@
 </svelte:head>
 
 <header>
+	<a class="back" href="/">← All scenarios</a>
 	<h1>{scenario.name}</h1>
 	<p>{scenario.description}</p>
 	<div class="controls">
@@ -136,13 +139,13 @@
 		<thead>
 			<tr>
 				<th></th>
-				<th class:current={gridName === 'speedy'}>
-					SpeedyTables
-					{#if stored.speedy}<span class="when">{relativeTime(stored.speedy.date)}</span>{/if}
-				</th>
 				<th class:current={gridName === 'aggrid'}>
 					AG Grid
 					{#if stored.aggrid}<span class="when">{relativeTime(stored.aggrid.date)}</span>{/if}
+				</th>
+				<th class:current={gridName === 'speedy'}>
+					SpeedyTables
+					{#if stored.speedy}<span class="when">{relativeTime(stored.speedy.date)}</span>{/if}
 				</th>
 				<th class="delta-head">Δ</th>
 			</tr>
@@ -154,8 +157,8 @@
 				{@const delta = s !== undefined && a !== undefined ? compareMetric(key, s, a) : null}
 				<tr>
 					<th>{key}</th>
-					<td class:win={delta?.winner === 'speedy'}>{s ?? '·'}</td>
 					<td class:win={delta?.winner === 'aggrid'}>{a ?? '·'}</td>
+					<td class:win={delta?.winner === 'speedy'}>{s ?? '·'}</td>
 					<td class="delta" data-winner={delta?.winner ?? 'tie'}>{delta?.label ?? ''}</td>
 				</tr>
 			{/each}
@@ -168,6 +171,16 @@
 <style>
 	header {
 		padding: 0.75rem 1rem 0.25rem;
+	}
+	.back {
+		display: inline-block;
+		font-size: 12px;
+		color: var(--app-ink-soft);
+		text-decoration: none;
+		margin-bottom: 2px;
+	}
+	.back:hover {
+		color: var(--app-accent);
 	}
 	h1 {
 		margin: 0;
