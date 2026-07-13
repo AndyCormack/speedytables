@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/speedytables-banner.png" alt="SpeedyTables — Framework-agnostic TypeScript core. Benchmarked at 1M rows." width="100%">
+</p>
+
 # SpeedyTables
 
 A personal exploration project: how fast can a data grid get when performance is the first constraint, measured honestly at every step?
