@@ -109,6 +109,34 @@
 		setTimeout(() => (shareNote = ''), 1500);
 	}
 
+	// popovers render centered by default — anchor them to their triggers
+	let baseTrigger = $state<HTMLElement>();
+	let basePanel = $state<HTMLElement>();
+	let saveTrigger = $state<HTMLElement>();
+	let savePanel = $state<HTMLElement>();
+
+	function anchor(e: ToggleEvent, panel: HTMLElement | undefined, trigger: HTMLElement | undefined) {
+		if (!panel || !trigger || e.newState !== 'open') return;
+		// toggle fires a task after the popover paints, so hide at beforetoggle and reveal once placed
+		if (e.type === 'beforetoggle') {
+			panel.style.visibility = 'hidden';
+			return;
+		}
+		const rect = trigger.getBoundingClientRect();
+		panel.style.position = 'fixed';
+		panel.style.margin = '0';
+		panel.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - panel.offsetWidth - 8))}px`;
+		panel.style.top = `${rect.bottom + 6}px`;
+		panel.style.visibility = 'visible';
+	}
+
+	const KEY_DOT_TOKENS = ['--st-bg', '--st-surface', '--st-accent', '--st-ink'];
+
+	/** Saved-theme palette dots: overrides where present, else the base theme's probed values. */
+	function savedDots(theme: { base: string; overrides: Record<string, string> }): string[] {
+		return KEY_DOT_TOKENS.map((name, i) => theme.overrides[name] ?? dots[theme.base]?.[i] ?? 'transparent');
+	}
+
 	let query = $state('');
 	const GROUPS: { id: TokenGroup; label: string }[] = [
 		{ id: 'surface', label: 'Surfaces' },
@@ -138,14 +166,21 @@
 		<a class="back" href="/themes/{editor.base}">← Themes</a>
 
 		<div class="picker-wrap">
-			<button type="button" class="base-btn" popovertarget="base-picker">
+			<button type="button" class="base-btn" popovertarget="base-picker" bind:this={baseTrigger}>
 				<span class="dots">
 					{#each dots[editor.base] ?? [] as dot (dot)}<i style="background:{dot};"></i>{/each}
 				</span>
 				{tokenThemes.find((t) => t.id === editor.base)?.name ?? editor.base}{editor.dirty ? '*' : ''}
 				<span class="chev">▾</span>
 			</button>
-			<div id="base-picker" popover="auto" class="base-panel">
+			<div
+				id="base-picker"
+				popover="auto"
+				class="base-panel"
+				bind:this={basePanel}
+				onbeforetoggle={(e) => anchor(e, basePanel, baseTrigger)}
+				ontoggle={(e) => anchor(e, basePanel, baseTrigger)}
+			>
 				<p class="section">Built-in</p>
 				{#each tokenThemes as theme (theme.id)}
 					<button
@@ -165,6 +200,9 @@
 					{#each saved as theme (theme.name)}
 						<div class="base-entry saved">
 							<button type="button" class="load" onclick={() => { editor.loadDraft(theme); saveName = theme.name; }}>
+								<span class="dots">
+									{#each savedDots(theme) as dot, i (i)}<i style="background:{dot};"></i>{/each}
+								</span>
 								{theme.name}
 							</button>
 							<button
@@ -194,8 +232,15 @@
 			<button type="button" disabled={!editor.dirty} onclick={() => editor.reset()}>Reset</button>
 			<button type="button" onclick={share}>Share</button>
 			<div class="save-wrap">
-				<button type="button" popovertarget="save-pop">Save</button>
-				<div id="save-pop" popover="auto" class="save-panel">
+				<button type="button" popovertarget="save-pop" bind:this={saveTrigger}>Save</button>
+				<div
+					id="save-pop"
+					popover="auto"
+					class="save-panel"
+					bind:this={savePanel}
+					onbeforetoggle={(e) => anchor(e, savePanel, saveTrigger)}
+					ontoggle={(e) => anchor(e, savePanel, saveTrigger)}
+				>
 					<label for="save-name">Theme name</label>
 					<input id="save-name" type="text" bind:value={saveName} placeholder="my-theme" />
 					<button type="button" class="confirm" disabled={!saveName.trim()} onclick={doSave}>Save locally</button>
@@ -333,6 +378,9 @@
 	}
 	.base-entry.saved .load {
 		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 8px;
 		border: none;
 		background: transparent;
 		color: var(--app-ink);

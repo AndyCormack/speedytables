@@ -11,14 +11,20 @@
 	let trigger = $state<HTMLElement>();
 	let panel = $state<HTMLElement>();
 
-	// top-layer popover, same pattern as the enum filter panel
-	function position(open: boolean) {
-		if (!open || !panel || !trigger) return;
+	// top-layer popover, same pattern as the enum filter panel; toggle fires a task
+	// after the popover paints, so hide at beforetoggle and reveal once placed
+	function position(e: ToggleEvent) {
+		if (!panel || !trigger || e.newState !== 'open') return;
+		if (e.type === 'beforetoggle') {
+			panel.style.visibility = 'hidden';
+			return;
+		}
 		const rect = trigger.getBoundingClientRect();
 		panel.style.position = 'fixed';
 		panel.style.margin = '0';
 		panel.style.left = `${Math.max(8, Math.min(rect.right - 160, window.innerWidth - panel.offsetWidth - 8))}px`;
 		panel.style.top = `${rect.bottom + 4}px`;
+		panel.style.visibility = 'visible';
 	}
 </script>
 
@@ -38,7 +44,8 @@
 	data-speedy-menu-panel
 	class={view.classes.menuPanel}
 	bind:this={panel}
-	ontoggle={(e) => position(e.newState === 'open')}
+	onbeforetoggle={position}
+	ontoggle={position}
 >
 	<button
 		type="button"

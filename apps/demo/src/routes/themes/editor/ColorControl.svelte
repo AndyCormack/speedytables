@@ -30,13 +30,19 @@
 		editor.setToken(token.name, formatOklch({ ...parsed, [channel]: parseFloat(raw) }));
 	}
 
-	function position(open: boolean) {
-		if (!open || !panel || !trigger) return;
+	function position(e: ToggleEvent) {
+		if (!panel || !trigger || e.newState !== 'open') return;
+		// toggle fires a task after the popover paints, so hide at beforetoggle and reveal once placed
+		if (e.type === 'beforetoggle') {
+			panel.style.visibility = 'hidden';
+			return;
+		}
 		const rect = trigger.getBoundingClientRect();
 		panel.style.position = 'fixed';
 		panel.style.margin = '0';
 		panel.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - panel.offsetWidth - 8))}px`;
 		panel.style.top = `${Math.min(rect.bottom + 6, window.innerHeight - 320)}px`;
+		panel.style.visibility = 'visible';
 	}
 </script>
 
@@ -75,7 +81,8 @@
 	popover="auto"
 	class="picker"
 	bind:this={panel}
-	ontoggle={(e) => position(e.newState === 'open')}
+	onbeforetoggle={position}
+	ontoggle={position}
 >
 	{#if parsed}
 		{#each CHANNELS as ch (ch.id)}

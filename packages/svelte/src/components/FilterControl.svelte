@@ -16,15 +16,22 @@
 
 	// The enum panel uses the native Popover API: it renders in the top layer, so
 	// no overflow/stacking context in the grid can clip it, and light-dismiss +
-	// Esc come for free. Position is anchored to the trigger on open.
-	function positionPanel(open: boolean) {
-		if (!open || !panel || !trigger) return;
+	// Esc come for free. Position is anchored to the trigger on open; the toggle
+	// event fires a task after the popover paints, so hide at beforetoggle and
+	// reveal once placed.
+	function positionPanel(e: ToggleEvent) {
+		if (!panel || !trigger || e.newState !== 'open') return;
+		if (e.type === 'beforetoggle') {
+			panel.style.visibility = 'hidden';
+			return;
+		}
 		const rect = trigger.getBoundingClientRect();
 		panel.style.position = 'fixed';
 		panel.style.margin = '0';
 		panel.style.minWidth = `${Math.max(rect.width, 160)}px`;
 		panel.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - panel.offsetWidth - 8))}px`;
 		panel.style.top = `${rect.bottom + 4}px`;
+		panel.style.visibility = 'visible';
 	}
 
 	function toggleValue(value: string, checked: boolean) {
@@ -69,7 +76,8 @@
 		data-speedy-enum-panel
 		class={view.classes.enumPanel}
 		bind:this={panel}
-		ontoggle={(e) => positionPanel(e.newState === 'open')}
+		onbeforetoggle={positionPanel}
+		ontoggle={positionPanel}
 	>
 		<div data-speedy-enum-head>
 			<span>{column.header ?? column.id}</span>
