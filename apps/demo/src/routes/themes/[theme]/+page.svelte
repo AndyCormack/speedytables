@@ -12,7 +12,7 @@
 	import SpeedyHarness from '$lib/drivers/SpeedyHarness.svelte';
 	import { generateTrades } from '$lib/dataset';
 	import { TRADE_COLUMNS } from '$lib/scenarios/columns';
-	import { THEMES } from '$lib/themes';
+	import { setPickedTheme, THEMES } from '$lib/themes';
 	import { listSaved, type SavedTheme } from '$lib/editor/saved';
 
 	const { data } = $props();
@@ -38,6 +38,9 @@
 		void theme.id;
 		void harness?.getGrid().setSortModel([{ columnId: 'price', dir: 'desc' }]);
 	});
+
+	// viewing a theme picks it: the scenario pages follow the pick
+	$effect(() => setPickedTheme(theme.id));
 
 	function pick(id: string) {
 		// flicking through themes is view state, not navigation

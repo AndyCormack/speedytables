@@ -1,8 +1,13 @@
 <script lang="ts">
-	// the scenario pages dogfood shipped theme #1 (ADR-0005); the tailwind
-	// utilities import is inert unless ?theme=tailwind passes the class preset
+	// scenario pages dogfood the shipped themes (ADR-0005): the theme picked in
+	// the gallery or editor applies here too; the tailwind utilities import is
+	// inert unless the class preset is active
 	import '@speedytables/svelte/themes/base.css';
 	import '@speedytables/svelte/themes/graphite.css';
+	import '@speedytables/svelte/themes/porcelain.css';
+	import '@speedytables/svelte/themes/oxide.css';
+	import '@speedytables/svelte/themes/ledger.css';
+	import '@speedytables/svelte/themes/aurora.css';
 	import '$lib/tailwind-utilities.css';
 	import { tailwindTheme } from '@speedytables/svelte/themes/tailwind';
 	import { goto } from '$app/navigation';
@@ -21,6 +26,7 @@
 	import { SIZES, type SizeKey } from '$lib/dataset';
 	import { drivers, type GridDriver, type GridName } from '$lib/drivers';
 	import { measureWorkerHeapMB } from '$lib/memory';
+	import { pickedTheme, resolveTheme, THEMES, type ResolvedTheme } from '$lib/themes';
 
 	const { data } = $props();
 
@@ -36,9 +42,18 @@
 	const speedyStoreKey = $derived(
 		(exec === 'main' ? 'speedy' : `speedy-${exec}`) as 'speedy' | 'speedy-worker' | 'speedy-hybrid'
 	);
-	/** ?theme=tailwind swaps the token theme for the part-class preset (bench parity path) */
-	const themeParam = $derived(
-		page.url.searchParams.get('theme') === 'tailwind' ? 'tailwind' : 'graphite'
+	// ?theme= pins the theme (the bench contract — runners start with fresh storage);
+	// otherwise the theme picked in the gallery or saved in the editor applies.
+	const theme = $derived.by((): ResolvedTheme => {
+		const param = page.url.searchParams.get('theme');
+		return (param ? resolveTheme(param) : pickedTheme()) ?? THEMES[0]!;
+	});
+	const overrideStyle = $derived(
+		theme.saved
+			? Object.entries(theme.saved.overrides)
+					.map(([k, v]) => `${k}: ${v}`)
+					.join('; ')
+			: ''
 	);
 
 	// baseline first: test the grid we're comparing against, then the improvement
@@ -108,14 +123,11 @@
 		try {
 			driver?.destroy();
 			container.replaceChildren();
-			driver = drivers[gridName](
-				gridName === 'speedy'
-					? {
-							compute: exec === 'main' ? 'main-thread' : exec === 'worker' ? 'worker' : 'hybrid',
-							classes: themeParam === 'tailwind' ? tailwindTheme : undefined
-						}
-					: undefined
-			);
+			driver = drivers[gridName]({
+				compute: exec === 'main' ? 'main-thread' : exec === 'worker' ? 'worker' : 'hybrid',
+				classes: theme.mechanism === 'classes' ? tailwindTheme : undefined,
+				rowHeight: theme.rowHeight
+			});
 			const results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });
 			if (gridName === 'speedy' && exec !== 'main') {
 				const workerHeap = await measureWorkerHeapMB();
@@ -203,6 +215,11 @@
 		{#if anyStored}
 			<button class="ghost" onclick={clearStored}>Clear results</button>
 		{/if}
+		{#if theme.id !== 'graphite'}
+			<a class="theme-chip" href="/themes/{theme.id}" title="Picked in the theme gallery; applies to the SpeedyTables grid">
+				theme: {theme.name}
+			</a>
+		{/if}
 	</fieldset>
 </header>
 
@@ -260,7 +277,10 @@
 
 <div
 	class="grid-host"
-	data-speedy-theme={themeParam === 'graphite' ? 'graphite' : undefined}
+	data-speedy-theme={theme.mechanism === 'tokens' ? (theme.saved?.base ?? theme.id) : undefined}
+	style={gridName === 'speedy'
+		? `background:${theme.paneBg}; color-scheme:${theme.paneScheme}; ${overrideStyle}`
+		: undefined}
 	bind:this={container}
 ></div>
 
@@ -396,6 +416,23 @@
 	.ghost:hover {
 		color: var(--app-ink);
 		background: oklch(0.24 0.012 255);
+	}
+	.theme-chip {
+		font-size: 11.5px;
+		line-height: 20px;
+		padding: 3px 10px;
+		border: 1px solid oklch(0.32 0.012 255);
+		border-radius: 99px;
+		color: var(--app-ink-soft);
+		text-decoration: none;
+	}
+	.theme-chip:hover {
+		color: var(--app-ink);
+		border-color: oklch(0.45 0.06 220);
+	}
+	.theme-chip:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px oklch(0.72 0.1 220 / 0.45);
 	}
 
 	/* comparison table */

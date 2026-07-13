@@ -1,3 +1,5 @@
+import { getSaved } from './editor/saved';
+
 /** The shipped theme catalog, as shown on /themes. */
 export interface ThemeEntry {
 	id: string;
@@ -68,3 +70,49 @@ export const THEMES: ThemeEntry[] = [
 		rowHeight: 34
 	}
 ];
+
+export interface ResolvedTheme extends ThemeEntry {
+	/** Present for user-saved themes: layered as inline overrides over the base theme. */
+	saved?: { base: string; overrides: Record<string, string>; rowHeight: number };
+}
+
+/** Resolve a built-in theme id or a saved custom theme name. Client-only for saved themes. */
+export function resolveTheme(id: string): ResolvedTheme | null {
+	const builtIn = THEMES.find((t) => t.id === id);
+	if (builtIn) return builtIn;
+	const saved = getSaved(id);
+	if (!saved) return null;
+	const base = THEMES.find((t) => t.id === saved.base) ?? THEMES[0]!;
+	return {
+		id: saved.name,
+		name: saved.name,
+		blurb: `Your custom theme, based on ${base.name}.`,
+		mechanism: 'tokens',
+		paneBg: saved.overrides['--st-bg'] ?? base.paneBg,
+		paneScheme: base.paneScheme,
+		rowHeight: saved.rowHeight,
+		saved: { base: saved.base, overrides: saved.overrides, rowHeight: saved.rowHeight }
+	};
+}
+
+// The theme last viewed in the gallery (or saved in the editor) follows the user
+// onto the scenario pages. Bench runs pin ?theme= explicitly and start with fresh
+// storage, so recorded numbers are never affected by a local pick.
+const PICKED_KEY = 'st-picked-theme';
+
+export function pickedTheme(): ResolvedTheme | null {
+	try {
+		const id = localStorage.getItem(PICKED_KEY);
+		return id ? resolveTheme(id) : null;
+	} catch {
+		return null;
+	}
+}
+
+export function setPickedTheme(id: string): void {
+	try {
+		localStorage.setItem(PICKED_KEY, id);
+	} catch {
+		/* storage unavailable: the pick just doesn't persist */
+	}
+}

@@ -11,7 +11,7 @@
 	import SpeedyHarness from '$lib/drivers/SpeedyHarness.svelte';
 	import { generateTrades } from '$lib/dataset';
 	import { TRADE_COLUMNS } from '$lib/scenarios/columns';
-	import { THEMES } from '$lib/themes';
+	import { setPickedTheme, THEMES } from '$lib/themes';
 	import { EditorState } from '$lib/editor/state.svelte';
 	import { probeTheme } from '$lib/editor/probe';
 	import { deleteTheme, getSaved, listSaved, saveTheme, decodeDraft } from '$lib/editor/saved';
@@ -104,6 +104,7 @@
 		const name = saveName.trim();
 		if (!name) return;
 		saveTheme(name, editor.draft());
+		setPickedTheme(name); // a fresh save becomes the theme the scenario pages use
 		savedVersion++;
 		shareNote = `Saved “${name}”`;
 		setTimeout(() => (shareNote = ''), 1500);

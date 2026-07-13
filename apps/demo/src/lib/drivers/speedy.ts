@@ -29,7 +29,7 @@ export function speedyDriver(options?: DriverOptions): GridDriver {
 				props: {
 					columns,
 					rows: rows as Record<string, unknown>[],
-					rowHeight: opts?.rowHeight ?? 32,
+					rowHeight: opts?.rowHeight ?? options?.rowHeight ?? 32,
 					compute: options?.compute ?? 'hybrid',
 					classes: options?.classes
 				}

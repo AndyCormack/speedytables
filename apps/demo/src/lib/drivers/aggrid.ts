@@ -11,7 +11,7 @@ import {
 	type ColDef,
 	type GridApi
 } from 'ag-grid-community';
-import type { ColumnSpec, GridDriver, MountOptions } from './types';
+import type { ColumnSpec, DriverOptions, GridDriver, MountOptions } from './types';
 
 // Minimal production module set — only what the scenarios exercise. Deliberately
 // NOT AllCommunityModule: that bundles ValidationModule (dev-mode option
@@ -41,7 +41,7 @@ function toColDef(col: ColumnSpec): ColDef {
 	};
 }
 
-export function agGridDriver(): GridDriver {
+export function agGridDriver(options?: DriverOptions): GridDriver {
 	let api: GridApi | null = null;
 	let container: HTMLElement | null = null;
 
@@ -61,7 +61,7 @@ export function agGridDriver(): GridDriver {
 					columnDefs: columns.map(toColDef),
 					rowData: rows,
 					getRowId: (p) => (p.data as { id: string }).id,
-					rowHeight: opts?.rowHeight ?? 32,
+					rowHeight: opts?.rowHeight ?? options?.rowHeight ?? 32,
 					headerHeight: 32,
 					animateRows: false,
 					rowBuffer: 3, // match speedy's overscan: 3 (AG default is 10)

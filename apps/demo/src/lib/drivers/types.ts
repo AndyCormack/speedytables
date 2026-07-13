@@ -44,4 +44,6 @@ export interface DriverOptions {
 	compute?: 'main-thread' | 'worker' | 'hybrid';
 	/** speedy only: part-class theme (e.g. the Tailwind preset). aggrid ignores it. */
 	classes?: import('@speedytables/svelte').PartClasses;
+	/** Default row height for mounts that don't set one. Applied to both grids, so a picked theme's density never skews a comparison. */
+	rowHeight?: number;
 }

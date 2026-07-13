@@ -5,6 +5,6 @@ import { speedyDriver } from './speedy';
 export type { ColumnSpec, DriverOptions, GridDriver, GridName, MountOptions } from './types';
 
 export const drivers: Record<GridName, (options?: DriverOptions) => GridDriver> = {
-	aggrid: () => agGridDriver(),
+	aggrid: agGridDriver,
 	speedy: speedyDriver
 };
