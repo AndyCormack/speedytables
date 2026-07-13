@@ -12,7 +12,7 @@
 		columns: ColumnSpec[];
 		rows: Record<string, unknown>[];
 		rowHeight: number;
-		compute?: 'main-thread' | 'worker';
+		compute?: 'main-thread' | 'worker' | 'hybrid';
 	} = $props();
 
 	function toColumnDef(col: ColumnSpec): ColumnDef {

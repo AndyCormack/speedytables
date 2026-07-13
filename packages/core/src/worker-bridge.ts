@@ -20,7 +20,8 @@ export interface RebuildResult {
 export class WorkerBridge {
 	#worker: Worker;
 	#nextId = 1;
-	#pending = new Map<number, { resolve: (r: RebuildResult) => void; reject: (e: Error) => void }>();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	#pending = new Map<number, { resolve: (r: any) => void; reject: (e: Error) => void }>();
 	/** columnId → last data version sent. */
 	#sent = new Map<string, number>();
 
@@ -29,17 +30,28 @@ export class WorkerBridge {
 		this.#worker.onmessage = (event) => {
 			const msg = event.data as
 				| { t: 'rebuild-done'; id: number; filtered: ArrayBuffer | null; sorted: ArrayBuffer | null }
+				| { t: 'heap-report'; id: number; bytes: number | null }
 				| { t: 'err'; id: number; message: string };
 			const pending = this.#pending.get(msg.id);
 			if (!pending) return;
 			this.#pending.delete(msg.id);
 			if (msg.t === 'err') pending.reject(new Error(msg.message));
+			else if (msg.t === 'heap-report') pending.resolve(msg.bytes);
 			else
 				pending.resolve({
 					filtered: msg.filtered ? new Uint32Array(msg.filtered) : null,
 					sorted: msg.sorted ? new Uint32Array(msg.sorted) : null
 				});
 		};
+	}
+
+	/** The worker's own JS heap in bytes (Chromium's legacy memory API; null elsewhere). */
+	heapUsage(): Promise<number | null> {
+		const id = this.#nextId++;
+		return new Promise((resolve, reject) => {
+			this.#pending.set(id, { resolve, reject });
+			this.#worker.postMessage({ t: 'heap', id });
+		});
 	}
 
 	/** Sends a column's projection unless the worker already holds this version. */
@@ -73,12 +85,17 @@ export class WorkerBridge {
 		length: number,
 		version: number,
 		filterModel: FilterSpec[],
-		sortModel: SortSpec[]
+		sortModel: SortSpec[],
+		candidates?: Uint32Array
 	): Promise<RebuildResult> {
 		const id = this.#nextId++;
 		return new Promise<RebuildResult>((resolve, reject) => {
 			this.#pending.set(id, { resolve, reject });
-			this.#worker.postMessage({ t: 'rebuild', id, length, version, filterModel, sortModel });
+			const copy = candidates?.slice(); // transfer must not detach the pipeline's array
+			this.#worker.postMessage(
+				{ t: 'rebuild', id, length, version, filterModel, sortModel, candidates: copy?.buffer },
+				{ transfer: copy ? [copy.buffer as ArrayBuffer] : [] }
+			);
 		});
 	}
 

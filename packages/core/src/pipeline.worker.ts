@@ -88,12 +88,21 @@ interface RebuildMessage {
 	version: number;
 	filterModel: FilterSpec[];
 	sortModel: SortSpec[];
+	/** Hybrid mode: pre-filtered candidate indices for the sort stage. */
+	candidates?: ArrayBuffer;
 }
 
 type InMessage =
 	| { t: 'proj-num'; columnId: string; version: number; buffer: ArrayBuffer }
 	| { t: 'proj-str-chunk'; columnId: string; version: number; start: number; total: number; values: string[] }
+	| { t: 'heap'; id: number }
 	| RebuildMessage;
+
+/** Chromium exposes the legacy memory API in dedicated workers; elsewhere report null. */
+function heapBytes(): number | null {
+	const memory = (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory;
+	return memory?.usedJSHeapSize ?? null;
+}
 
 function rebuild(msg: RebuildMessage): void {
 	let filtered: Uint32Array | null = null;
@@ -114,7 +123,10 @@ function rebuild(msg: RebuildMessage): void {
 			projection: entryOf(spec.columnId, msg.version).projection,
 			dir: spec.dir
 		}));
-		sorted = drain(sortIndexJob(keys, filtered ?? identityOf(msg.length, msg.version)));
+		const candidates = msg.candidates
+			? new Uint32Array(msg.candidates)
+			: (filtered ?? identityOf(msg.length, msg.version));
+		sorted = drain(sortIndexJob(keys, candidates));
 	}
 
 	// filtered result is retained by filterCache for refinement — transfer a copy;
@@ -146,6 +158,8 @@ onmessage = (event: MessageEvent<InMessage>) => {
 				delete entry.pendingChunks;
 				delete entry.lower;
 			}
+		} else if (msg.t === 'heap') {
+			postMessage({ t: 'heap-report', id: msg.id, bytes: heapBytes() });
 		} else if (msg.t === 'rebuild') {
 			rebuild(msg);
 		}

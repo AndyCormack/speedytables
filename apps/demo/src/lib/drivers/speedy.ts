@@ -60,6 +60,11 @@ export function speedyDriver(options?: DriverOptions): GridDriver {
 		scrollElement: viewport,
 		hScrollElement: viewport,
 
+		async workerHeapMB() {
+			const bytes = await app?.getGrid().workerHeapUsage();
+			return bytes == null ? null : Math.round((bytes / 1e6) * 100) / 100;
+		},
+
 		destroy() {
 			app?.getGrid().destroy(); // releases the worker in worker mode
 			if (app) unmount(app);

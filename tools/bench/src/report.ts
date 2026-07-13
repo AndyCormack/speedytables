@@ -27,7 +27,7 @@ interface Run {
 	scenario: string;
 	grid: string;
 	size: string;
-	exec?: 'main' | 'worker';
+	exec?: 'main' | 'worker' | 'hybrid';
 	gridVersion?: string;
 	repeats: number;
 	medians: Record<string, number>;
@@ -50,7 +50,7 @@ if (files.length === 0) {
 }
 
 const gridLabel = (run: Run): string =>
-	`${run.grid}${run.exec === 'worker' ? ' (worker)' : ''}${run.gridVersion ? ` ${run.gridVersion}` : ''}`;
+	`${run.grid}${run.exec && run.exec !== 'main' ? ` (${run.exec})` : ''}${run.gridVersion ? ` ${run.gridVersion}` : ''}`;
 
 // --- REPORT.md: later files overwrite earlier ones per key ---
 

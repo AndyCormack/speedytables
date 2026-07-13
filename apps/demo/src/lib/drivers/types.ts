@@ -34,6 +34,8 @@ export interface GridDriver {
 	scrollElement(): HTMLElement;
 	/** Horizontal scroll container. */
 	hScrollElement(): HTMLElement;
+	/** Worker's self-reported heap in MB, when the grid runs one. */
+	workerHeapMB?(): Promise<number | null>;
 	destroy(): void;
 }
 
@@ -41,5 +43,5 @@ export type GridName = 'aggrid' | 'speedy';
 
 export interface DriverOptions {
 	/** speedy only: where pipeline compute runs. aggrid ignores it. */
-	compute?: 'main-thread' | 'worker';
+	compute?: 'main-thread' | 'worker' | 'hybrid';
 }

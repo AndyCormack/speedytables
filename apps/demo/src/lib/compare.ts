@@ -3,15 +3,15 @@
  * Results are stored per (scenario, size, grid) so runs survive grid switches
  * and page reloads, enabling a side-by-side diff.
  */
-/** 'speedy-worker' is the worker-executor variant of speedy. */
-export type StoreVariant = 'aggrid' | 'speedy' | 'speedy-worker';
+/** 'speedy-worker' / 'speedy-hybrid' are executor variants of speedy. */
+export type StoreVariant = 'aggrid' | 'speedy' | 'speedy-worker' | 'speedy-hybrid';
 
 export interface StoredRun {
 	results: Record<string, number>;
 	date: string;
 }
 
-const VARIANTS: StoreVariant[] = ['aggrid', 'speedy', 'speedy-worker'];
+const VARIANTS: StoreVariant[] = ['aggrid', 'speedy', 'speedy-worker', 'speedy-hybrid'];
 
 const storageKey = (scenario: string, size: string, variant: StoreVariant) =>
 	`st-results:${scenario}:${size}:${variant}`;

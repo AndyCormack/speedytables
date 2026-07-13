@@ -29,6 +29,7 @@ export class Grid<Row> {
 	#emitter = new SliceEmitter();
 	#executor: Executor;
 	#bridge: WorkerBridge | null = null;
+	#compute: 'main-thread' | 'worker' | 'hybrid' = 'main-thread';
 	#overscan: number;
 	#scrollTop = 0;
 	#viewportHeight = 0;
@@ -51,9 +52,17 @@ export class Grid<Row> {
 		this.getRowId = config.getRowId;
 		this.#overscan = config.overscan ?? 3;
 		this.#executor = config.executor ?? new MainThreadExecutor();
-		if (config.compute === 'worker' && workerSupported()) this.#bridge = new WorkerBridge();
+		if ((config.compute === 'worker' || config.compute === 'hybrid') && workerSupported()) {
+			this.#compute = config.compute;
+			this.#bridge = new WorkerBridge();
+		}
 		if (config.data) this.#pipeline.setSource(config.data);
 		this.#recompute();
+	}
+
+	/** The worker's self-reported JS heap in bytes; null when no worker or unsupported. */
+	async workerHeapUsage(): Promise<number | null> {
+		return this.#bridge ? this.#bridge.heapUsage() : null;
 	}
 
 	/** Releases the worker (if any) and cancels in-flight work. */
@@ -190,7 +199,9 @@ export class Grid<Row> {
 	 * change reuses the cached filter output.
 	 */
 	#rebuild(filterDirty: boolean): Promise<void> {
-		if (this.#bridge) return this.#rebuildWorker();
+		if (this.#bridge) {
+			return this.#compute === 'hybrid' ? this.#rebuildHybrid(filterDirty) : this.#rebuildWorker();
+		}
 
 		this.#rebuildAbort?.abort();
 		const abort = (this.#rebuildAbort = new AbortController());
@@ -263,6 +274,64 @@ export class Grid<Row> {
 				if (abort.signal.aborted) return;
 				pipeline.adoptStages(result.filtered, result.sorted, this.#filterModel);
 				this.#sortKeys = null; // patch state rehydrates on demand (flush path)
+				this.#recompute(true);
+			} catch (error) {
+				if (abort.signal.aborted) return;
+				if (error instanceof DOMException && error.name === 'AbortError') return;
+				throw error;
+			} finally {
+				if (this.#rebuildAbort === abort) this.#rebuildPromise = null;
+			}
+		})();
+		this.#rebuildPromise = run;
+		return run;
+	}
+
+	/**
+	 * Hybrid rebuild: filter runs time-sliced on the main thread (projections,
+	 * refinement cache, and patch predicate stay local — no text handoff), then
+	 * the candidate indices transfer to the worker for the O(N log N) sort.
+	 * Only sorted columns are mirrored into the worker heap.
+	 */
+	#rebuildHybrid(filterDirty: boolean): Promise<void> {
+		this.#rebuildAbort?.abort();
+		const abort = (this.#rebuildAbort = new AbortController());
+		const pipeline = this.#pipeline;
+
+		const run = (async () => {
+			try {
+				if (filterDirty) {
+					await this.#executor.run(pipeline.filterJob(this.#filterModel, this.columns), abort.signal);
+					if (abort.signal.aborted) return;
+				}
+				if (this.#sortModel.length === 0) {
+					pipeline.setSortedIndex(null);
+					this.#sortKeys = null;
+					this.#recompute(true);
+					return;
+				}
+				const keys: SortKey[] = [];
+				for (const spec of this.#sortModel) {
+					const column = this.columns.find((c) => c.id === spec.columnId);
+					if (!column) throw new Error(`Unknown sort column: ${spec.columnId}`);
+					const projection = await this.#executor.run(pipeline.projectionJob(column), abort.signal);
+					await this.#bridge!.sendProjection(spec.columnId, projection, pipeline.dataVersion);
+					keys.push({ projection, dir: spec.dir });
+				}
+				const candidates =
+					this.#filterModel.length > 0
+						? await this.#executor.run(pipeline.candidatesJob(), abort.signal)
+						: undefined; // unfiltered: the worker uses its own identity, nothing to transfer
+				const result = await this.#bridge!.rebuild(
+					pipeline.length,
+					pipeline.dataVersion,
+					[],
+					this.#sortModel,
+					candidates
+				);
+				if (abort.signal.aborted) return;
+				pipeline.setSortedIndex(result.sorted);
+				this.#sortKeys = keys; // main-side keys — deltas patch without hydration
 				this.#recompute(true);
 			} catch (error) {
 				if (abort.signal.aborted) return;

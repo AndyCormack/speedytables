@@ -17,9 +17,14 @@
 	const scenario = $derived(data.scenario);
 	const gridName = $derived((page.url.searchParams.get('grid') ?? 'aggrid') as GridName);
 	const sizeKey = $derived((page.url.searchParams.get('size') ?? scenario.defaultSize) as SizeKey);
-	const exec = $derived(page.url.searchParams.get('exec') === 'worker' ? 'worker' : 'main');
-	/** storage bucket: worker runs are a separate speedy variant in the comparison */
-	const speedyStoreKey = $derived(exec === 'worker' ? 'speedy-worker' : 'speedy');
+	const exec = $derived.by(() => {
+		const value = page.url.searchParams.get('exec');
+		return value === 'worker' || value === 'hybrid' ? value : 'main';
+	});
+	/** storage bucket: each executor is a separate speedy variant in the comparison */
+	const speedyStoreKey = $derived(
+		(exec === 'main' ? 'speedy' : `speedy-${exec}`) as 'speedy' | 'speedy-worker' | 'speedy-hybrid'
+	);
 
 	// baseline first: test the grid we're comparing against, then the improvement
 	const GRIDS: { id: GridName; label: string }[] = [
@@ -48,7 +53,7 @@
 		const grid = param === 'grid' ? value : gridName;
 		const size = param === 'size' ? value : sizeKey;
 		const ex = param === 'exec' ? value : exec;
-		const execParam = grid === 'speedy' && ex === 'worker' ? '&exec=worker' : '';
+		const execParam = grid === 'speedy' && ex !== 'main' ? `&exec=${ex}` : '';
 		// toggles are view state, not navigation — keep them out of history
 		void goto(`?grid=${grid}&size=${size}${execParam}`, {
 			replaceState: true,
@@ -69,9 +74,13 @@
 			driver?.destroy();
 			container.replaceChildren();
 			driver = drivers[gridName](
-				gridName === 'speedy' && exec === 'worker' ? { compute: 'worker' } : undefined
+				gridName === 'speedy' && exec !== 'main'
+					? { compute: exec === 'hybrid' ? 'hybrid' : 'worker' }
+					: undefined
 			);
 			const results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });
+			const workerHeap = await driver.workerHeapMB?.();
+			if (workerHeap != null) results.workerHeapMB = workerHeap;
 			saveRun(scenario.name, sizeKey, gridName === 'speedy' ? speedyStoreKey : 'aggrid', results);
 			storedVersion++;
 			return results;
@@ -119,7 +128,7 @@
 		</div>
 		{#if gridName === 'speedy'}
 			<div class="seg" role="radiogroup" aria-label="Compute">
-				{#each [{ id: 'main', label: 'Main thread' }, { id: 'worker', label: 'Worker' }] as opt (opt.id)}
+				{#each [{ id: 'main', label: 'Main thread' }, { id: 'worker', label: 'Worker' }, { id: 'hybrid', label: 'Hybrid' }] as opt (opt.id)}
 					<label class="seg-option" class:active={exec === opt.id}>
 						<input
 							type="radio"
@@ -171,7 +180,7 @@
 					{#if stored.aggrid}<span class="when">{relativeTime(stored.aggrid.date)}</span>{/if}
 				</th>
 				<th class:current={gridName === 'speedy'}>
-					SpeedyTables{exec === 'worker' ? ' (worker)' : ''}
+					SpeedyTables{exec !== 'main' ? ` (${exec})` : ''}
 					{#if stored.speedy}<span class="when">{relativeTime(stored.speedy.date)}</span>{/if}
 				</th>
 				<th class="delta-head">Δ</th>
