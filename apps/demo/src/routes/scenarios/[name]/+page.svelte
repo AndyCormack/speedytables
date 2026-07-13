@@ -122,11 +122,12 @@
 	<title>{scenario.name} · {gridName} · SpeedyTables bench</title>
 </svelte:head>
 
-<header>
+<header class:running aria-busy={running}>
 	<a class="back" href="/">← All scenarios</a>
 	<h1>{scenario.name}</h1>
 	<p>{scenario.description}</p>
-	<div class="controls">
+	<!-- fieldset: one attribute disables every nested control while a run is live -->
+	<fieldset class="controls" disabled={running}>
 		<div class="seg" role="radiogroup" aria-label="Grid under test">
 			{#each GRIDS as g (g.id)}
 				<label class="seg-option" class:active={gridName === g.id}>
@@ -177,7 +178,7 @@
 		{#if anyStored}
 			<button class="ghost" onclick={clearStored}>Clear results</button>
 		{/if}
-	</div>
+	</fieldset>
 </header>
 
 {#if error}
@@ -261,6 +262,26 @@
 		align-items: center;
 		flex-wrap: wrap;
 		gap: 10px;
+		border: none;
+		margin: 0;
+		padding: 0;
+		min-width: 0;
+	}
+	/* the whole top section stands down while a run is live */
+	header {
+		transition: opacity 200ms cubic-bezier(0.165, 0.84, 0.44, 1);
+	}
+	header.running {
+		opacity: 0.45;
+		pointer-events: none;
+	}
+	header.running .run {
+		opacity: 1; /* keep the 'Running…' label readable as the status cue */
+	}
+	@media (prefers-reduced-motion: reduce) {
+		header {
+			transition: none;
+		}
 	}
 	.seg {
 		display: flex;
