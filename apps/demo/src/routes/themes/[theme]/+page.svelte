@@ -84,7 +84,7 @@
 					bind:this={harness}
 					columns={TRADE_COLUMNS}
 					{rows}
-					rowHeight={32}
+					rowHeight={theme.rowHeight}
 					compute="main-thread"
 					classes={theme.mechanism === 'classes' ? tailwindTheme : undefined}
 				/>

@@ -33,5 +33,11 @@ export const TOKENS: readonly TokenSpec[] = [
 	{ name: '--st-font-size', group: 'density', kind: 'length', default: '13px', description: 'Grid text size' },
 	{ name: '--st-pad-x', group: 'density', kind: 'length', default: '10px', description: 'Horizontal cell padding' },
 	{ name: '--st-header-weight', group: 'density', kind: 'weight', default: '600', description: 'Header label weight' },
+	{ name: '--st-header-transform', group: 'density', kind: 'weight', default: 'none', description: 'Header label text-transform' },
+	{ name: '--st-header-tracking', group: 'density', kind: 'length', default: '0', description: 'Header label letter-spacing' },
+	{ name: '--st-header-border', group: 'border', kind: 'shadow', default: '1px solid var(--st-border-strong)', description: 'Header bottom border (full border shorthand)' },
+	{ name: '--st-row-border', group: 'border', kind: 'shadow', default: '1px solid var(--st-border)', description: 'Row separator (full border shorthand; none for borderless rows)' },
+	{ name: '--st-row-odd-bg', group: 'surface', kind: 'color', default: 'var(--st-bg)', description: 'Odd-row background (zebra striping; keyed to absolute row index, not DOM position)' },
+	{ name: '--st-cell-rule', group: 'border', kind: 'shadow', default: 'none', description: 'Vertical column rule on cells (full border shorthand)' },
 	{ name: '--st-ease', group: 'motion', kind: 'easing', default: 'cubic-bezier(0.165, 0.84, 0.44, 1)', description: 'Transition easing (ease-out-quart)' }
 ] as const;

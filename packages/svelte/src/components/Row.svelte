@@ -13,9 +13,11 @@
 	const view = getTableContext();
 </script>
 
+<!-- parity from the absolute row index: zebra themes stay stable while the window scrolls -->
 <div
 	data-speedy-row
 	class={view.classes.row}
+	data-parity={index % 2 ? 'odd' : 'even'}
 	role="row"
 	aria-rowindex={index + 1}
 	style="height:{view.grid.rowHeight}px;"

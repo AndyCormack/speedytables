@@ -13,6 +13,8 @@ export type Part =
 	| 'headerFilter'
 	| 'filterInput'
 	| 'filterClear'
+	| 'filterContains'
+	| 'filterRange'
 	| 'enumTrigger'
 	| 'enumPanel'
 	| 'enumOption'

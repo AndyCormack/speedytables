@@ -1,7 +1,8 @@
 /**
- * ledger — the accountant's grid. Cool paper, oxblood accent, dense: smaller
- * type, tighter padding, near-square corners. Shows the density tokens are
- * real, not decorative.
+ * ledger — the accountant's grid. Cool paper, oxblood accent, and the full
+ * bookkeeping apparatus: vertical column rules, zebra-striped rows (stable
+ * against scrolling — parity comes from the absolute row index), dense type,
+ * near-square corners. Pair with a compact row height (~26px).
  */
 [data-speedy-theme='ledger'] {
 	color-scheme: light;
@@ -23,5 +24,9 @@
 	--st-font-size: 12px;
 	--st-pad-x: 8px;
 	--st-header-weight: 650;
+	--st-header-border: 1px solid var(--st-border-strong);
+	--st-row-border: 1px solid var(--st-border);
+	--st-row-odd-bg: oklch(0.945 0.006 250);
+	--st-cell-rule: 1px solid var(--st-border);
 	--st-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
 }

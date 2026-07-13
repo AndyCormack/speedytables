@@ -93,7 +93,7 @@
 	</div>
 {:else if kind === 'range'}
 	{@const range = view.rangeValue(column.id)}
-	<div data-speedy-range data-active={range ? '' : undefined}>
+	<div data-speedy-range class={view.classes.filterRange} data-active={range ? '' : undefined}>
 		<input
 			data-speedy-filter-input
 			class={view.classes.filterInput}
@@ -117,7 +117,12 @@
 	</div>
 {:else if kind === 'text'}
 	{@const value = view.containsValue(column.id)}
-	<div data-speedy-contains data-active={value !== '' ? '' : undefined} style="position:relative;">
+	<div
+		data-speedy-contains
+		class={view.classes.filterContains}
+		data-active={value !== '' ? '' : undefined}
+		style="position:relative;"
+	>
 		<input
 			data-speedy-filter-input
 			class={view.classes.filterInput}
