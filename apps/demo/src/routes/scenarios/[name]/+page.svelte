@@ -2,12 +2,15 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import {
+		bestOf,
 		clearRuns,
 		compareMetric,
 		loadRun,
 		metricKeys,
 		relativeTime,
-		saveRun
+		saveRun,
+		type StoredRun,
+		type StoreVariant
 	} from '$lib/compare';
 	import { SIZES, type SizeKey } from '$lib/dataset';
 	import { drivers, type GridDriver, type GridName } from '$lib/drivers';
@@ -38,17 +41,24 @@
 	let running = $state(false);
 	let error = $state<string | null>(null);
 
-	// Stored results survive grid switches and reloads (per scenario + size),
-	// so both columns of the comparison fill in as each grid is run.
+	// Stored results survive grid switches and reloads (per scenario + size);
+	// every variant that has been run gets its own comparison column.
+	const VARIANT_COLUMNS: { key: StoreVariant; label: string }[] = [
+		{ key: 'aggrid', label: 'AG Grid' },
+		{ key: 'speedy', label: 'Speedy · main' },
+		{ key: 'speedy-worker', label: 'Speedy · worker' },
+		{ key: 'speedy-hybrid', label: 'Speedy · hybrid' }
+	];
 	let storedVersion = $state(0);
-	const stored = $derived.by(() => {
+	const columns = $derived.by(() => {
 		void storedVersion;
 		void page.url; // re-read after navigation
-		return {
-			speedy: loadRun(scenario.name, sizeKey, speedyStoreKey),
-			aggrid: loadRun(scenario.name, sizeKey, 'aggrid')
-		};
+		return VARIANT_COLUMNS.map((v) => ({ ...v, run: loadRun(scenario.name, sizeKey, v.key) })).filter(
+			(v): v is { key: StoreVariant; label: string; run: StoredRun } => v.run !== null
+		);
 	});
+	const currentVariant = $derived(gridName === 'aggrid' ? 'aggrid' : speedyStoreKey);
+	const anyStored = $derived(columns.length > 0);
 
 	function select(param: 'grid' | 'size' | 'exec', value: string) {
 		const grid = param === 'grid' ? value : gridName;
@@ -162,7 +172,7 @@
 		<button class="run" onclick={run} disabled={running}>
 			{running ? 'Running…' : 'Run scenario'}
 		</button>
-		{#if stored.speedy || stored.aggrid}
+		{#if anyStored}
 			<button class="ghost" onclick={clearStored}>Clear results</button>
 		{/if}
 	</div>
@@ -172,32 +182,41 @@
 	<p class="error">{error}</p>
 {/if}
 
-{#if stored.speedy || stored.aggrid}
-	{@const keys = metricKeys(stored.speedy?.results, stored.aggrid?.results)}
+{#if anyStored}
+	{@const keys = metricKeys(...columns.map((c) => c.run.results))}
 	<table class="compare">
 		<thead>
 			<tr>
 				<th></th>
-				<th class:current={gridName === 'aggrid'}>
-					AG Grid
-					{#if stored.aggrid}<span class="when">{relativeTime(stored.aggrid.date)}</span>{/if}
-				</th>
-				<th class:current={gridName === 'speedy'}>
-					SpeedyTables{exec !== 'main' ? ` (${exec})` : ''}
-					{#if stored.speedy}<span class="when">{relativeTime(stored.speedy.date)}</span>{/if}
-				</th>
-				<th class="delta-head">Δ</th>
+				{#each columns as column (column.key)}
+					<th class:current={column.key === currentVariant}>
+						{column.label}
+						<span class="when">{relativeTime(column.run.date)}</span>
+					</th>
+				{/each}
+				<th class="delta-head" title="best SpeedyTables variant vs AG Grid">Δ</th>
 			</tr>
 		</thead>
 		<tbody>
 			{#each keys as key (key)}
-				{@const s = stored.speedy?.results[key]}
-				{@const a = stored.aggrid?.results[key]}
-				{@const delta = s !== undefined && a !== undefined ? compareMetric(key, s, a) : null}
+				{@const values = columns.map((c) => c.run.results[key])}
+				{@const present = values.filter((v) => v !== undefined)}
+				{@const contested = new Set(present).size > 1}
+				{@const best = contested ? bestOf(key, values) : null}
+				{@const aggridValue = columns.find((c) => c.key === 'aggrid')?.run.results[key]}
+				{@const bestSpeedy = bestOf(
+					key,
+					columns.filter((c) => c.key !== 'aggrid').map((c) => c.run.results[key])
+				) ?? columns.find((c) => c.key !== 'aggrid')?.run.results[key]}
+				{@const delta =
+					aggridValue !== undefined && bestSpeedy !== undefined && bestSpeedy !== null
+						? compareMetric(key, bestSpeedy, aggridValue)
+						: null}
 				<tr>
 					<th>{key}</th>
-					<td class:win={delta?.winner === 'aggrid'}>{a ?? '·'}</td>
-					<td class:win={delta?.winner === 'speedy'}>{s ?? '·'}</td>
+					{#each columns as column, i (column.key)}
+						<td class:win={best !== null && values[i] === best}>{values[i] ?? '·'}</td>
+					{/each}
 					<td class="delta" data-winner={delta?.winner ?? 'tie'}>{delta?.label ?? ''}</td>
 				</tr>
 			{/each}

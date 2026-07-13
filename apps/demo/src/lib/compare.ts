@@ -62,8 +62,15 @@ export function compareMetric(metric: string, speedy: number, aggrid: number): D
 }
 
 /** Union of metric keys, preserving first-seen order. */
-export function metricKeys(a?: Record<string, number>, b?: Record<string, number>): string[] {
-	return [...new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})])];
+export function metricKeys(...sets: (Record<string, number> | undefined)[]): string[] {
+	return [...new Set(sets.flatMap((s) => Object.keys(s ?? {})))];
+}
+
+/** Best defined value for a metric across variants (direction-aware); null when fewer than 2 compete. */
+export function bestOf(metric: string, values: (number | undefined)[]): number | null {
+	const present = values.filter((v): v is number => v !== undefined);
+	if (present.length < 2) return null;
+	return higherIsBetter(metric) ? Math.max(...present) : Math.min(...present);
 }
 
 export function relativeTime(iso: string): string {
