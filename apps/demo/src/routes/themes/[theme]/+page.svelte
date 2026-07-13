@@ -8,13 +8,26 @@
 	import '$lib/tailwind-utilities.css';
 	import { tailwindTheme } from '@speedytables/svelte/themes/tailwind';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
 	import SpeedyHarness from '$lib/drivers/SpeedyHarness.svelte';
 	import { generateTrades } from '$lib/dataset';
 	import { TRADE_COLUMNS } from '$lib/scenarios/columns';
 	import { THEMES } from '$lib/themes';
+	import { listSaved, type SavedTheme } from '$lib/editor/saved';
 
 	const { data } = $props();
 	const theme = $derived(data.theme);
+
+	let savedThemes = $state<SavedTheme[]>([]);
+	onMount(() => (savedThemes = listSaved()));
+
+	const overrideStyle = $derived(
+		theme.saved
+			? Object.entries(theme.saved.overrides)
+					.map(([k, v]) => `${k}: ${v}`)
+					.join('; ')
+			: ''
+	);
 
 	const rows = generateTrades(10_000) as unknown as Record<string, unknown>[];
 
@@ -63,10 +76,30 @@
 					<span class="blurb">{entry.blurb}</span>
 				</a>
 			{/each}
+			{#if savedThemes.length}
+				<p class="yours-label">Yours</p>
+				{#each savedThemes as savedTheme (savedTheme.name)}
+					<div class="entry saved-entry" class:active={savedTheme.name === theme.id}>
+						<a
+							class="saved-link"
+							href="/themes/{savedTheme.name}"
+							aria-current={savedTheme.name === theme.id ? 'page' : undefined}
+							onclick={(e) => {
+								e.preventDefault();
+								pick(savedTheme.name);
+							}}
+						>
+							<span class="name">{savedTheme.name}</span>
+							<span class="blurb">Custom, based on {savedTheme.base}.</span>
+						</a>
+						<a class="edit" href="/themes/editor?load={savedTheme.name}">edit</a>
+					</div>
+				{/each}
+			{/if}
 		</nav>
+		<a class="build" href="/themes/editor">Build your own theme →</a>
 		<p class="foot">
-			Tokens are a documented contract — see <code>themes/tokens.ts</code>. A live token editor is
-			planned.
+			Tokens are a documented contract — see <code>themes/tokens.ts</code>.
 		</p>
 	</aside>
 
@@ -78,7 +111,12 @@
 		{#key theme.id}
 			<div
 				class="stage"
-				data-speedy-theme={theme.mechanism === 'tokens' ? theme.id : undefined}
+				data-speedy-theme={theme.saved
+					? theme.saved.base
+					: theme.mechanism === 'tokens'
+						? theme.id
+						: undefined}
+				style={overrideStyle}
 			>
 				<SpeedyHarness
 					bind:this={harness}
@@ -172,6 +210,51 @@
 		font-size: 0.73rem;
 		line-height: 1.45;
 		color: var(--app-ink-soft);
+	}
+	.yours-label {
+		margin: 10px 6px 4px;
+		font-size: 10.5px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--app-ink-soft);
+	}
+	.saved-entry {
+		display: flex;
+		align-items: flex-start;
+		gap: 6px;
+	}
+	.saved-link {
+		flex: 1;
+		min-width: 0;
+		text-decoration: none;
+		color: inherit;
+	}
+	.edit {
+		flex: none;
+		font-size: 0.68rem;
+		font-weight: 500;
+		color: var(--app-accent);
+		text-decoration: none;
+		padding-top: 2px;
+	}
+	.edit:hover {
+		text-decoration: underline;
+	}
+	.build {
+		display: block;
+		margin-top: 0.9rem;
+		padding: 0.5rem 0.7rem;
+		border: 1px solid oklch(0.4 0.05 220);
+		border-radius: 7px;
+		background: oklch(0.24 0.035 220);
+		color: var(--app-ink);
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-align: center;
+		text-decoration: none;
+	}
+	.build:hover {
+		background: oklch(0.28 0.045 220);
 	}
 	.foot {
 		margin-top: auto;
