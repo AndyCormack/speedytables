@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1117"/>
+      <stop offset="1" stop-color="#101823"/>
+    </linearGradient>
+    <linearGradient id="sp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="1" stop-color="#2dd4bf"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect x="0.5" y="0.5" width="1199" height="674" fill="none" stroke="#1f2a37" stroke-width="1"/>
+
+  <!-- header -->
+  <text x="72" y="76" font-size="34" font-weight="700" fill="#f1f5f9">SpeedyTables vs AG Grid Community</text>
+  <text x="72" y="108" font-size="17" fill="#8b98a9">1,000,000 rows, identical seeded data, medians of 3 recorded runs</text>
+
+  <!-- legend -->
+  <rect x="886" y="56" width="14" height="14" rx="3" fill="#5b6b7d"/>
+  <text x="908" y="68" font-size="14" fill="#aeb9c6">AG Grid 34.3.1</text>
+  <rect x="1024" y="56" width="14" height="14" rx="3" fill="url(#sp)"/>
+  <text x="1046" y="68" font-size="14" fill="#aeb9c6">SpeedyTables</text>
+
+  <!-- row 1: mount -->
+  <text x="72" y="172" font-size="16.5" font-weight="600" fill="#dbe3ec">Load and first paint</text>
+  <rect x="72" y="184" width="720" height="17" rx="3.5" fill="#5b6b7d"/>
+  <text x="800" y="197" font-size="13.5" fill="#8b98a9">684 ms</text>
+  <rect x="72" y="207" width="49" height="17" rx="3.5" fill="url(#sp)"/>
+  <text x="129" y="220" font-size="13.5" font-weight="600" fill="#5eead4">47 ms</text>
+  <text x="1128" y="204" font-size="21" font-weight="700" fill="#5eead4" text-anchor="end">15&#215; faster</text>
+
+  <!-- row 2: sort -->
+  <text x="72" y="270" font-size="16.5" font-weight="600" fill="#dbe3ec">Sort a numeric column</text>
+  <rect x="72" y="282" width="720" height="17" rx="3.5" fill="#5b6b7d"/>
+  <text x="800" y="295" font-size="13.5" fill="#8b98a9">2,298 ms</text>
+  <rect x="72" y="305" width="83" height="17" rx="3.5" fill="url(#sp)"/>
+  <text x="163" y="318" font-size="13.5" font-weight="600" fill="#5eead4">264 ms</text>
+  <text x="1128" y="302" font-size="21" font-weight="700" fill="#5eead4" text-anchor="end">8.7&#215; faster</text>
+
+  <!-- row 3: filter keystroke -->
+  <text x="72" y="368" font-size="16.5" font-weight="600" fill="#dbe3ec">Text filter, per keystroke</text>
+  <rect x="72" y="380" width="720" height="17" rx="3.5" fill="#5b6b7d"/>
+  <text x="800" y="393" font-size="13.5" fill="#8b98a9">233 ms</text>
+  <rect x="72" y="403" width="103" height="17" rx="3.5" fill="url(#sp)"/>
+  <text x="183" y="416" font-size="13.5" font-weight="600" fill="#5eead4">33 ms</text>
+  <text x="1128" y="400" font-size="21" font-weight="700" fill="#5eead4" text-anchor="end">7&#215; faster</text>
+
+  <!-- row 4: live updates -->
+  <text x="72" y="466" font-size="16.5" font-weight="600" fill="#dbe3ec">1,000 live updates per second, worst frame</text>
+  <rect x="72" y="478" width="720" height="17" rx="3.5" fill="#5b6b7d"/>
+  <text x="800" y="491" font-size="13.5" fill="#8b98a9">1,774 ms</text>
+  <rect x="72" y="501" width="21" height="17" rx="3.5" fill="url(#sp)"/>
+  <text x="101" y="514" font-size="13.5" font-weight="600" fill="#5eead4">50 ms, 60 fps held</text>
+  <text x="1128" y="498" font-size="21" font-weight="700" fill="#5eead4" text-anchor="end">35&#215; smoother</text>
+
+  <!-- row 5: stalls -->
+  <text x="72" y="564" font-size="16.5" font-weight="600" fill="#dbe3ec">Longest UI freeze across every interaction</text>
+  <rect x="72" y="576" width="720" height="17" rx="3.5" fill="#5b6b7d"/>
+  <text x="800" y="589" font-size="13.5" fill="#8b98a9">2,537 ms</text>
+  <rect x="72" y="599" width="3" height="17" rx="1.5" fill="url(#sp)"/>
+  <text x="83" y="612" font-size="13.5" font-weight="600" fill="#5eead4">0 ms, zero long tasks</text>
+  <text x="1128" y="596" font-size="21" font-weight="700" fill="#5eead4" text-anchor="end">never blocks</text>
+
+  <!-- footer -->
+  <line x1="72" y1="636" x2="1128" y2="636" stroke="#1f2a37" stroke-width="1"/>
+  <text x="72" y="658" font-size="12.5" fill="#66748a">Recorded by the automated harness (Playwright + CDP), Chromium 149, Ryzen 7 9800X3D. Full version-linked log: tools/bench/results</text>
+</svg>

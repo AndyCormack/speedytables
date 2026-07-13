@@ -10,6 +10,8 @@ The core (`@speedytables/core`) is headless, plain TypeScript with zero framewor
 
 To be clear about scope: this does not come close to AG Grid's feature surface, and it is not trying to. AG Grid has hundreds of features built over a decade. This project has a handful, chosen because each one exercises a different performance bottleneck at a million rows. What it does have is receipts: every feature ships with recorded head-to-head numbers against AG Grid Community on identical seeded data, captured by an automated harness.
 
+**New here?** Take the [guided tour](docs/TOUR.md): every key piece of the code with what it does and why, screenshots of the key features, and the results in one chart. Collapsible details let you browse the whole project without reading the source.
+
 ## Status
 
 Pre-alpha. The benchmark infrastructure landed first, so every feature that followed has honest before and after numbers.
