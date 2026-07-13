@@ -39,12 +39,16 @@
 		void harness?.getGrid().setSortModel([{ columnId: 'price', dir: 'desc' }]);
 	});
 
-	// viewing a theme picks it: the scenario pages follow the pick
-	$effect(() => setPickedTheme(theme.id));
-
 	function pick(id: string) {
+		// picking is the click, not the view: deep links and back-navigation
+		// never clobber a pick. The scenario pages follow it.
+		setPickedTheme(id);
 		// flicking through themes is view state, not navigation
-		void goto(`/themes/${id}`, { replaceState: true, keepFocus: true, noScroll: true });
+		void goto(`/themes/${encodeURIComponent(id)}`, {
+			replaceState: true,
+			keepFocus: true,
+			noScroll: true
+		});
 	}
 </script>
 
@@ -85,7 +89,7 @@
 					<div class="entry saved-entry" class:active={savedTheme.name === theme.id}>
 						<a
 							class="saved-link"
-							href="/themes/{savedTheme.name}"
+							href="/themes/{encodeURIComponent(savedTheme.name)}"
 							aria-current={savedTheme.name === theme.id ? 'page' : undefined}
 							onclick={(e) => {
 								e.preventDefault();
@@ -95,7 +99,7 @@
 							<span class="name">{savedTheme.name}</span>
 							<span class="blurb">Custom, based on {savedTheme.base}.</span>
 						</a>
-						<a class="edit" href="/themes/editor?load={savedTheme.name}">edit</a>
+						<a class="edit" href="/themes/editor?load={encodeURIComponent(savedTheme.name)}">edit</a>
 					</div>
 				{/each}
 			{/if}

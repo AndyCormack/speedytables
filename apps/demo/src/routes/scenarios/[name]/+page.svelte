@@ -216,7 +216,7 @@
 			<button class="ghost" onclick={clearStored}>Clear results</button>
 		{/if}
 		{#if theme.id !== 'graphite'}
-			<a class="theme-chip" href="/themes/{theme.id}" title="Picked in the theme gallery; applies to the SpeedyTables grid">
+			<a class="theme-chip" href="/themes/{encodeURIComponent(theme.id)}" title="Picked in the theme gallery; applies to the SpeedyTables grid">
 				theme: {theme.name}
 			</a>
 		{/if}
