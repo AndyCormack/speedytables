@@ -1,0 +1,280 @@
+{
+	"meta": {
+		"date": "2026-07-13T08:46:19.440Z",
+		"versions": {
+			"@speedytables/core": "0.5.0",
+			"@speedytables/svelte": "0.5.0",
+			"ag-grid-community": "34.3.1"
+		},
+		"commit": "1c88195",
+		"dirty": false,
+		"browser": "149.0.7827.55",
+		"node": "v24.18.0",
+		"os": "win32 10.0.26200",
+		"cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+		"cores": 16,
+		"memoryGB": 33.95
+	},
+	"results": [
+		{
+			"scenario": "sort-1m",
+			"grid": "speedy",
+			"size": "1m",
+			"exec": "main",
+			"gridVersion": "0.5.0",
+			"repeats": 3,
+			"medians": {
+				"sortNumberDescMs": 259.5,
+				"sortNumberAscMs": 282.1,
+				"sortTextAscMs": 550.2,
+				"clearSortMs": 33.2,
+				"longTaskCount": 0,
+				"longTaskTotalMs": 0,
+				"longTaskMaxMs": 0,
+				"cdpTaskDurationMs": 1325.01,
+				"cdpJsHeapUsedMB": 260.69
+			},
+			"raw": [
+				{
+					"sortNumberDescMs": 276.8,
+					"sortNumberAscMs": 282.1,
+					"sortTextAscMs": 616.9,
+					"clearSortMs": 34.2,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 1401.02,
+					"cdpJsHeapUsedMB": 260.69
+				},
+				{
+					"sortNumberDescMs": 259.5,
+					"sortNumberAscMs": 281.5,
+					"sortTextAscMs": 550.2,
+					"clearSortMs": 33.2,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 1325.01,
+					"cdpJsHeapUsedMB": 260.66
+				},
+				{
+					"sortNumberDescMs": 257.4,
+					"sortNumberAscMs": 301.6,
+					"sortTextAscMs": 549.6,
+					"clearSortMs": 32.1,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 1320.32,
+					"cdpJsHeapUsedMB": 260.73
+				}
+			]
+		},
+		{
+			"scenario": "filter-1m",
+			"grid": "speedy",
+			"size": "1m",
+			"exec": "main",
+			"gridVersion": "0.5.0",
+			"repeats": 3,
+			"medians": {
+				"keystrokeMedianMs": 33.7,
+				"keystrokeMaxMs": 122.8,
+				"clearFilterMs": 32.5,
+				"longTaskCount": 0,
+				"longTaskTotalMs": 0,
+				"longTaskMaxMs": 0,
+				"keystroke1Ms": 122.8,
+				"keystroke2Ms": 21.1,
+				"keystroke3Ms": 33.5,
+				"keystroke4Ms": 33.1,
+				"keystroke5Ms": 33.6,
+				"keystroke6Ms": 33.7,
+				"keystroke7Ms": 33.7,
+				"cdpTaskDurationMs": 446.93,
+				"cdpJsHeapUsedMB": 312.18
+			},
+			"raw": [
+				{
+					"keystrokeMedianMs": 33.7,
+					"keystrokeMaxMs": 122.8,
+					"clearFilterMs": 32.5,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"keystroke1Ms": 122.8,
+					"keystroke2Ms": 21.1,
+					"keystroke3Ms": 33.7,
+					"keystroke4Ms": 33.2,
+					"keystroke5Ms": 33.9,
+					"keystroke6Ms": 32.6,
+					"keystroke7Ms": 33.7,
+					"cdpTaskDurationMs": 430.86,
+					"cdpJsHeapUsedMB": 312.18
+				},
+				{
+					"keystrokeMedianMs": 33.1,
+					"keystrokeMaxMs": 119.8,
+					"clearFilterMs": 33.1,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"keystroke1Ms": 119.8,
+					"keystroke2Ms": 20.6,
+					"keystroke3Ms": 33,
+					"keystroke4Ms": 33.1,
+					"keystroke5Ms": 33.6,
+					"keystroke6Ms": 34.7,
+					"keystroke7Ms": 32,
+					"cdpTaskDurationMs": 446.93,
+					"cdpJsHeapUsedMB": 311.77
+				},
+				{
+					"keystrokeMedianMs": 33.7,
+					"keystrokeMaxMs": 132.1,
+					"clearFilterMs": 32.2,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"keystroke1Ms": 132.1,
+					"keystroke2Ms": 33.9,
+					"keystroke3Ms": 33.5,
+					"keystroke4Ms": 32.4,
+					"keystroke5Ms": 33.2,
+					"keystroke6Ms": 33.7,
+					"keystroke7Ms": 34.1,
+					"cdpTaskDurationMs": 478.52,
+					"cdpJsHeapUsedMB": 312.25
+				}
+			]
+		},
+		{
+			"scenario": "enum-filter",
+			"grid": "speedy",
+			"size": "1m",
+			"exec": "main",
+			"gridVersion": "0.5.0",
+			"repeats": 3,
+			"medians": {
+				"applyOneOf11Ms": 24.2,
+				"applyFiveOf11Ms": 33.7,
+				"addValueMs": 33.1,
+				"removeValueMs": 32.7,
+				"stackSecondEnumMs": 35.2,
+				"clearAllMs": 31.7,
+				"longTaskCount": 0,
+				"longTaskTotalMs": 0,
+				"longTaskMaxMs": 0,
+				"cdpTaskDurationMs": 397.2,
+				"cdpJsHeapUsedMB": 249.03
+			},
+			"raw": [
+				{
+					"applyOneOf11Ms": 24.2,
+					"applyFiveOf11Ms": 33.8,
+					"addValueMs": 33.1,
+					"removeValueMs": 32.7,
+					"stackSecondEnumMs": 35.6,
+					"clearAllMs": 31.5,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 465.38,
+					"cdpJsHeapUsedMB": 248.67
+				},
+				{
+					"applyOneOf11Ms": 31.1,
+					"applyFiveOf11Ms": 33.3,
+					"addValueMs": 34.6,
+					"removeValueMs": 31.6,
+					"stackSecondEnumMs": 35.2,
+					"clearAllMs": 32.2,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 388.52,
+					"cdpJsHeapUsedMB": 249.4
+				},
+				{
+					"applyOneOf11Ms": 21,
+					"applyFiveOf11Ms": 33.7,
+					"addValueMs": 32.9,
+					"removeValueMs": 33.4,
+					"stackSecondEnumMs": 34.7,
+					"clearAllMs": 31.7,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 397.2,
+					"cdpJsHeapUsedMB": 249.03
+				}
+			]
+		},
+		{
+			"scenario": "live-updates",
+			"grid": "speedy",
+			"size": "1m",
+			"exec": "main",
+			"gridVersion": "0.5.0",
+			"repeats": 3,
+			"medians": {
+				"ticksApplied": 4992,
+				"frames": 299,
+				"frameAvgMs": 16.76,
+				"frameP95Ms": 20,
+				"frameMaxMs": 51.2,
+				"framesOver16Pct": 40.6,
+				"framesOver33Pct": 0.33,
+				"longTaskCount": 0,
+				"longTaskTotalMs": 0,
+				"longTaskMaxMs": 0,
+				"cdpTaskDurationMs": 4875.48,
+				"cdpJsHeapUsedMB": 277.86
+			},
+			"raw": [
+				{
+					"ticksApplied": 4985,
+					"frames": 299,
+					"frameAvgMs": 16.72,
+					"frameP95Ms": 19.7,
+					"frameMaxMs": 49.8,
+					"framesOver16Pct": 38.13,
+					"framesOver33Pct": 0.33,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 4856.93,
+					"cdpJsHeapUsedMB": 277.89
+				},
+				{
+					"ticksApplied": 4994,
+					"frames": 298,
+					"frameAvgMs": 16.81,
+					"frameP95Ms": 20,
+					"frameMaxMs": 54.4,
+					"framesOver16Pct": 40.6,
+					"framesOver33Pct": 0.34,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 4875.48,
+					"cdpJsHeapUsedMB": 277.84
+				},
+				{
+					"ticksApplied": 4992,
+					"frames": 299,
+					"frameAvgMs": 16.76,
+					"frameP95Ms": 20,
+					"frameMaxMs": 51.2,
+					"framesOver16Pct": 42.47,
+					"framesOver33Pct": 0.33,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"cdpTaskDurationMs": 4909.22,
+					"cdpJsHeapUsedMB": 277.86
+				}
+			]
+		}
+	]
+}

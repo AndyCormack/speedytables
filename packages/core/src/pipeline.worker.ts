@@ -121,8 +121,8 @@ function rebuild(msg: RebuildMessage): void {
 	// sorted is not retained, transfer it outright
 	const filteredOut = filtered ? filtered.slice() : null;
 	const transfer: ArrayBuffer[] = [];
-	if (filteredOut) transfer.push(filteredOut.buffer);
-	if (sorted) transfer.push(sorted.buffer);
+	if (filteredOut) transfer.push(filteredOut.buffer as ArrayBuffer);
+	if (sorted) transfer.push(sorted.buffer as ArrayBuffer);
 	postMessage(
 		{ t: 'rebuild-done', id: msg.id, filtered: filteredOut?.buffer ?? null, sorted: sorted?.buffer ?? null },
 		{ transfer }

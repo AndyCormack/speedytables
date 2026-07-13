@@ -43,7 +43,7 @@ export class WorkerBridge {
 	}
 
 	/** Sends a column's projection unless the worker already holds this version. */
-	sendProjection(columnId: string, projection: Projection, version: number): void {
+	async sendProjection(columnId: string, projection: Projection, version: number): Promise<void> {
 		if (this.#sent.get(columnId) === version) return;
 		this.#sent.set(columnId, version);
 		if (projection instanceof Float64Array) {
@@ -63,6 +63,9 @@ export class WorkerBridge {
 				total: projection.length,
 				values: projection.slice(start, start + TEXT_CHUNK)
 			});
+			// each chunk's structured-clone serialization runs on this thread —
+			// yield between chunks or the loop itself becomes one long task
+			await new Promise((resolve) => setTimeout(resolve, 0));
 		}
 	}
 

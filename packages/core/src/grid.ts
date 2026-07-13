@@ -252,7 +252,7 @@ export class Grid<Row> {
 					const column = this.columns.find((c) => c.id === columnId);
 					if (!column) throw new Error(`Unknown column: ${columnId}`);
 					const projection = await this.#executor.run(pipeline.projectionJob(column), abort.signal);
-					this.#bridge!.sendProjection(columnId, projection, pipeline.dataVersion);
+					await this.#bridge!.sendProjection(columnId, projection, pipeline.dataVersion);
 				}
 				const result = await this.#bridge!.rebuild(
 					pipeline.length,
