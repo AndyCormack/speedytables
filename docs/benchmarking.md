@@ -39,10 +39,12 @@ bundles dev-mode `ValidationModule` that AG Grid's docs say to exclude in produc
 
 Known not-matched (and why we accept it):
 
-- **Paint weight**: AG Grid renders its Quartz theme (borders, hover targets, icons,
-  focus machinery); speedy renders minimal demo styling. Structural work dominates the
-  measured scenarios, but pixel-paint cost is not identical. Revisit when speedy ships
-  real themes (backlog).
+- **Paint weight — resolved (v0.7.0)**: speedy scenario pages now render the shipped
+  `graphite` theme (full borders, hover states, focus machinery) opposite AG Quartz —
+  comparable visual weight, recorded numbers unchanged. The Tailwind part-class preset
+  is also recorded (`--theme=tailwind`, `[tailwind]` labels): identical frame rates and
+  zero long tasks, at ~34% more scroll CPU than the token theme — utility-class weight
+  is measurable but nowhere near frame budget.
 - **Feature surface**: AG Grid instantiates infrastructure for capabilities speedy
   doesn't have yet (cell focus/keyboard navigation, editing hooks, aria machinery).
   That's the honest cost of its architecture vs a lean one — it's what we're measuring —

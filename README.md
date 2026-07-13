@@ -25,6 +25,8 @@ Numbers are medians at 1,000,000 rows vs AG Grid Community on identical data ([f
 
 - **Column controls & wide grids** (v0.6.0) — drag to resize, drag headers to reorder, hide/show columns from a per-column menu. Columns are virtualized like rows: a 150-column grid renders only the ~13 in view, holds 60fps on a full-width sweep, and sorts in 33ms vs AG Grid's 49ms on the same data.
 
+- **Themes** (v0.7.0) — five shipped token themes (import a CSS file, set `data-speedy-theme`) over a documented ~20-token contract, plus a Tailwind part-class preset that composes with your own Tailwind config. Fully headless remains the base layer. Browse them side-by-side at `/themes` in the demo. Benchmarked like everything else: the themed grid keeps every prior number, and the Tailwind preset holds 60fps with zero stalls.
+
 Comparisons use a deliberately minimal, production-configured AG Grid (see [fairness notes](docs/benchmarking.md)).
 
 ## Benchmarks
