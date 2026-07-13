@@ -25,6 +25,7 @@
 <button
 	type="button"
 	data-speedy-colmenu-trigger
+	class={view.classes.menuTrigger}
 	aria-label="Column menu: {column.header ?? column.id}"
 	popovertarget={panelId}
 	bind:this={trigger}
@@ -35,12 +36,14 @@
 	id={panelId}
 	popover="auto"
 	data-speedy-menu-panel
+	class={view.classes.menuPanel}
 	bind:this={panel}
 	ontoggle={(e) => position(e.newState === 'open')}
 >
 	<button
 		type="button"
 		data-speedy-menu-item
+		class={view.classes.menuItem}
 		onclick={() => {
 			panel?.hidePopover();
 			view.setColumnVisible(column.id, false);
@@ -52,6 +55,7 @@
 		<button
 			type="button"
 			data-speedy-menu-item
+			class={view.classes.menuItem}
 			onclick={() => {
 				panel?.hidePopover();
 				view.showAllColumns();

@@ -13,7 +13,13 @@
 	const view = getTableContext();
 </script>
 
-<div data-speedy-row role="row" aria-rowindex={index + 1} style="height:{view.grid.rowHeight}px;">
+<div
+	data-speedy-row
+	class={view.classes.row}
+	role="row"
+	aria-rowindex={index + 1}
+	style="height:{view.grid.rowHeight}px;"
+>
 	{#if children}
 		{@render children()}
 	{:else}

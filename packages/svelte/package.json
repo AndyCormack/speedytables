@@ -9,7 +9,8 @@
       "types": "./src/index.ts",
       "svelte": "./src/index.ts",
       "default": "./src/index.ts"
-    }
+    },
+    "./themes/*": "./src/themes/*"
   },
   "scripts": {
     "check": "svelte-check --tsconfig ./tsconfig.json"

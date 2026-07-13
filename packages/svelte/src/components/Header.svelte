@@ -33,7 +33,7 @@
 	}
 </script>
 
-<div data-speedy-header role="row" style="overflow:hidden; flex:none;">
+<div data-speedy-header class={view.classes.header} role="row" style="overflow:hidden; flex:none;">
 	<div style="width:{view.totalWidth}px; transform:translateX({-view.scrollLeft}px);">
 		<div style="display:flex; transform:translateX({view.hwindow.offsetX}px);">
 			{#each view.hwindow.columns as column (column.id)}
@@ -44,6 +44,7 @@
 					<!-- svelte-ignore a11y_interactive_supports_focus -- drop target only; keyboard interaction lives on the inner sort button -->
 					<div
 						data-speedy-header-cell
+						class={view.classes.headerCell}
 						data-sort={dir}
 						data-dtype={column.dataType ?? 'text'}
 						role="columnheader"
@@ -62,6 +63,7 @@
 							<button
 								type="button"
 								data-speedy-header-label
+								class={view.classes.headerLabel}
 								draggable="true"
 								ondragstart={(e) => {
 									dragId = column.id;
@@ -72,18 +74,19 @@
 							>
 								<span>{column.header ?? column.id}</span>
 								{#if dir}
-									<span data-speedy-sort-indicator aria-hidden="true">{dir === 'asc' ? '▲' : '▼'}</span>
+									<span data-speedy-sort-indicator class={view.classes.sortIndicator} aria-hidden="true">{dir === 'asc' ? '▲' : '▼'}</span>
 								{/if}
 							</button>
 							<ColumnMenu {column} />
 						</div>
 						{#if showFilters}
-							<div data-speedy-header-filter>
+							<div data-speedy-header-filter class={view.classes.headerFilter}>
 								<FilterControl {column} />
 							</div>
 						{/if}
 						<span
 							data-speedy-resize-handle
+							class={view.classes.resizeHandle}
 							role="separator"
 							aria-orientation="vertical"
 							aria-label="Resize {column.header ?? column.id}"

@@ -7,6 +7,7 @@ import type {
 	SortSpec,
 	WindowSlice
 } from '@speedytables/core';
+import type { PartClasses } from './parts';
 
 export type RowData = Record<string, unknown>;
 
@@ -16,6 +17,8 @@ export type RowData = Record<string, unknown>;
  */
 export class GridView {
 	readonly grid: Grid<RowData>;
+	/** Static part-class map (ADR-0005); set by Table.Root, read at element creation. */
+	classes: PartClasses = {};
 	window = $state.raw<WindowSlice<RowData>>({ firstRow: 0, count: 0, rows: [] });
 	position = $state.raw<PositionSlice>({ blockTop: 0, virtualHeight: 0 });
 	sortModel = $state.raw<SortSpec[]>([]);

@@ -43,13 +43,21 @@
 	});
 </script>
 
-<div data-speedy-viewport bind:this={el} {onscroll} style="overflow:auto; flex:1; position:relative;">
+<div
+	data-speedy-viewport
+	class={view.classes.viewport}
+	bind:this={el}
+	{onscroll}
+	style="overflow:auto; flex:1; position:relative;"
+>
 	<div
 		data-speedy-canvas
+		class={view.classes.canvas}
 		style="height:{view.position.virtualHeight}px; width:{view.totalWidth}px; position:relative; overflow:hidden;"
 	>
 		<div
 			data-speedy-rows
+			class={view.classes.rows}
 			style="position:absolute; top:0; left:0; width:100%; transform:translateY({view.position
 				.blockTop}px);"
 		>

@@ -1,0 +1,26 @@
+/**
+ * graphite — the instrument theme. Deep blue-gray, never pure black; one
+ * steel-teal accent carrying state only. Dark, dense, engineered.
+ */
+[data-speedy-theme='graphite'] {
+	color-scheme: dark;
+	--st-bg: oklch(0.195 0.012 255);
+	--st-surface: oklch(0.235 0.012 255);
+	--st-surface-hover: oklch(0.275 0.014 255);
+	--st-panel: oklch(0.235 0.012 255);
+	--st-ink: oklch(0.93 0.005 250);
+	--st-ink-soft: oklch(0.72 0.015 250);
+	--st-border: oklch(0.29 0.012 255);
+	--st-border-strong: oklch(0.38 0.015 255);
+	--st-accent: oklch(0.72 0.1 220);
+	--st-accent-ink: oklch(0.14 0.015 255);
+	--st-accent-tint: oklch(0.3 0.05 220);
+	--st-radius: 4px;
+	--st-radius-panel: 6px;
+	--st-focus-ring: 0 0 0 2px oklch(0.72 0.1 220 / 0.35);
+	--st-shadow-panel: 0 2px 6px oklch(0 0 0 / 0.3), 0 8px 24px oklch(0 0 0 / 0.45);
+	--st-font-size: 13px;
+	--st-pad-x: 10px;
+	--st-header-weight: 600;
+	--st-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
+}

@@ -1,0 +1,299 @@
+/**
+ * SpeedyTables theme base (ADR-0005): structural rules shared by every token
+ * theme, parameterized entirely by the --st-* token contract (see tokens.ts).
+ * Applies wherever a data-speedy-theme ancestor scopes it. Token themes only
+ * set custom properties; anything structural lives here once.
+ */
+
+[data-speedy-theme] [data-speedy-root] {
+	border: 1px solid var(--st-border-strong);
+	border-radius: var(--st-radius, 4px);
+	background: var(--st-bg);
+	color: var(--st-ink);
+	font-size: var(--st-font-size, 13px);
+	overflow: clip;
+}
+
+/* header */
+[data-speedy-theme] [data-speedy-header] {
+	background: var(--st-surface);
+	border-bottom: 1px solid var(--st-border-strong);
+}
+[data-speedy-theme] [data-speedy-header-top] {
+	display: flex;
+	align-items: center;
+}
+[data-speedy-theme] [data-speedy-header-label] {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex: 1;
+	min-width: 0;
+	padding: 0 var(--st-pad-x, 10px);
+	border: none;
+	background: transparent;
+	font: inherit;
+	font-weight: var(--st-header-weight, 600);
+	color: var(--st-ink);
+	line-height: 30px;
+	cursor: pointer;
+	text-align: left;
+	transition: background-color 150ms var(--st-ease);
+}
+[data-speedy-theme] [data-speedy-header-label]:hover {
+	background: var(--st-surface-hover);
+}
+[data-speedy-theme] [data-speedy-header-label]:focus-visible {
+	outline: none;
+	box-shadow: inset var(--st-focus-ring);
+}
+[data-speedy-theme] [data-speedy-header-cell][data-sort] [data-speedy-header-label] {
+	color: var(--st-accent);
+}
+[data-speedy-theme] [data-speedy-sort-indicator] {
+	font-size: 9px;
+	color: var(--st-accent);
+}
+[data-speedy-theme] [data-speedy-header-cell][data-dtype='number'] [data-speedy-header-label] {
+	justify-content: flex-end;
+}
+[data-speedy-theme] [data-speedy-colmenu-trigger] {
+	flex: none;
+	width: 20px;
+	height: 24px;
+	margin-right: 6px;
+	border: none;
+	border-radius: var(--st-radius, 4px);
+	background: transparent;
+	color: var(--st-ink-soft);
+	font: inherit;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 150ms var(--st-ease);
+}
+[data-speedy-theme] [data-speedy-header-cell]:hover [data-speedy-colmenu-trigger],
+[data-speedy-theme] [data-speedy-colmenu-trigger]:focus-visible {
+	opacity: 1;
+}
+[data-speedy-theme] [data-speedy-colmenu-trigger]:hover {
+	background: var(--st-surface-hover);
+	color: var(--st-ink);
+}
+[data-speedy-theme] [data-speedy-resize-handle] {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 7px;
+	height: 100%;
+	cursor: col-resize;
+	touch-action: none;
+}
+[data-speedy-theme] [data-speedy-resize-handle]:hover,
+[data-speedy-theme] [data-speedy-resize-handle]:active {
+	background: linear-gradient(to right, transparent 4px, var(--st-accent) 4px);
+}
+[data-speedy-theme] [data-speedy-header-filter] {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0 6px 6px;
+	min-height: 30px;
+}
+[data-speedy-theme] [data-speedy-header-filter] [data-speedy-contains],
+[data-speedy-theme] [data-speedy-header-filter] [data-speedy-range] {
+	display: flex;
+	gap: 4px;
+	width: 100%;
+	min-width: 0;
+}
+
+/* body */
+[data-speedy-theme] [data-speedy-row] {
+	border-bottom: 1px solid var(--st-border);
+	background: var(--st-bg);
+}
+[data-speedy-theme] [data-speedy-row]:hover {
+	background: var(--st-surface);
+}
+[data-speedy-theme] [data-speedy-cell] {
+	display: flex;
+	align-items: center;
+	padding: 0 var(--st-pad-x, 10px);
+}
+[data-speedy-theme] [data-speedy-cell][data-dtype='number'] {
+	justify-content: flex-end;
+	font-variant-numeric: tabular-nums;
+}
+
+/* filter controls */
+[data-speedy-theme] [data-speedy-filter-input],
+[data-speedy-theme] [data-speedy-enum-trigger] {
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	height: 24px;
+	padding: 0 8px;
+	font: inherit;
+	font-size: calc(var(--st-font-size, 13px) - 1px);
+	color: var(--st-ink);
+	background: var(--st-bg);
+	border: 1px solid var(--st-border-strong);
+	border-radius: var(--st-radius, 4px);
+	transition:
+		border-color 150ms var(--st-ease),
+		box-shadow 150ms var(--st-ease);
+}
+[data-speedy-theme] [data-speedy-filter-input]::placeholder {
+	color: var(--st-ink-soft);
+}
+[data-speedy-theme] [data-speedy-filter-input]:hover,
+[data-speedy-theme] [data-speedy-enum-trigger]:hover {
+	border-color: var(--st-accent);
+}
+[data-speedy-theme] [data-speedy-filter-input]:focus-visible,
+[data-speedy-theme] [data-speedy-enum-trigger]:focus-visible {
+	outline: none;
+	border-color: var(--st-accent);
+	box-shadow: var(--st-focus-ring);
+}
+[data-speedy-theme] [data-active] > [data-speedy-filter-input],
+[data-speedy-theme] [data-speedy-enum-trigger][data-active] {
+	border-color: var(--st-accent);
+	background: var(--st-accent-tint);
+}
+[data-speedy-theme] [data-speedy-range] input::-webkit-outer-spin-button,
+[data-speedy-theme] [data-speedy-range] input::-webkit-inner-spin-button {
+	appearance: none;
+}
+[data-speedy-theme] [data-speedy-filter-clear] {
+	position: absolute;
+	right: 4px;
+	top: 50%;
+	translate: 0 -50%;
+	width: 16px;
+	height: 16px;
+	display: grid;
+	place-items: center;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--st-ink-soft);
+	font-size: 13px;
+	line-height: 1;
+	cursor: pointer;
+}
+[data-speedy-theme] [data-speedy-filter-clear]:hover {
+	background: var(--st-border);
+	color: var(--st-ink);
+}
+[data-speedy-theme] [data-speedy-enum-trigger] {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	cursor: pointer;
+	text-align: left;
+}
+[data-speedy-theme] [data-speedy-enum-chevron] {
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid var(--st-ink-soft);
+	flex: none;
+}
+
+/*
+ * Popover panels render in the top layer (outside the theme ancestor), so they
+ * inherit tokens via an inline copy applied by the components' theme context —
+ * they still match on their own data attributes with token fallbacks.
+ */
+[data-speedy-enum-panel],
+[data-speedy-menu-panel] {
+	border: 1px solid var(--st-border-strong, oklch(0.38 0.015 255));
+	border-radius: var(--st-radius-panel, 6px);
+	background: var(--st-panel, oklch(0.235 0.012 255));
+	color: var(--st-ink, oklch(0.93 0.005 250));
+	font-size: calc(var(--st-font-size, 13px) - 1px);
+	padding: 4px;
+	box-shadow: var(--st-shadow-panel, 0 2px 6px oklch(0 0 0 / 0.3), 0 8px 24px oklch(0 0 0 / 0.45));
+	max-height: 280px;
+	overflow-y: auto;
+	opacity: 1;
+	transform: translateY(0);
+	transition:
+		opacity 150ms var(--st-ease, ease-out),
+		transform 150ms var(--st-ease, ease-out),
+		overlay 150ms allow-discrete,
+		display 150ms allow-discrete;
+}
+@starting-style {
+	[data-speedy-enum-panel]:popover-open,
+	[data-speedy-menu-panel]:popover-open {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+[data-speedy-enum-head] {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 4px 8px 6px;
+	border-bottom: 1px solid var(--st-border, oklch(0.29 0.012 255));
+	margin-bottom: 4px;
+	font-weight: var(--st-header-weight, 600);
+}
+[data-speedy-enum-reset] {
+	border: none;
+	background: transparent;
+	font: inherit;
+	font-size: 11px;
+	color: var(--st-accent, oklch(0.72 0.1 220));
+	cursor: pointer;
+	padding: 2px 4px;
+	border-radius: var(--st-radius, 4px);
+}
+[data-speedy-enum-reset]:hover:not(:disabled) {
+	background: var(--st-accent-tint, oklch(0.3 0.05 220));
+}
+[data-speedy-enum-reset]:disabled {
+	color: var(--st-ink-soft, oklch(0.5 0.01 250));
+	opacity: 0.6;
+	cursor: default;
+}
+[data-speedy-enum-option],
+[data-speedy-menu-item] {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 4px 8px;
+	border: none;
+	border-radius: var(--st-radius, 4px);
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	white-space: nowrap;
+}
+[data-speedy-enum-option]:hover,
+[data-speedy-menu-item]:hover {
+	background: var(--st-surface-hover, oklch(0.275 0.014 255));
+}
+[data-speedy-enum-option] input {
+	accent-color: var(--st-accent, oklch(0.72 0.1 220));
+	margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-speedy-theme] [data-speedy-header-label],
+	[data-speedy-theme] [data-speedy-colmenu-trigger],
+	[data-speedy-theme] [data-speedy-filter-input],
+	[data-speedy-theme] [data-speedy-enum-trigger],
+	[data-speedy-enum-panel],
+	[data-speedy-menu-panel] {
+		transition: none;
+	}
+}

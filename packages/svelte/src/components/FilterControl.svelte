@@ -54,6 +54,7 @@
 	<button
 		type="button"
 		data-speedy-enum-trigger
+		class={view.classes.enumTrigger}
 		data-active={selected ? '' : undefined}
 		aria-label="Filter {column.header ?? column.id}"
 		popovertarget={panelId}
@@ -66,6 +67,7 @@
 		id={panelId}
 		popover="auto"
 		data-speedy-enum-panel
+		class={view.classes.enumPanel}
 		bind:this={panel}
 		ontoggle={(e) => positionPanel(e.newState === 'open')}
 	>
@@ -74,6 +76,7 @@
 			<button
 				type="button"
 				data-speedy-enum-reset
+				class={view.classes.enumReset}
 				disabled={!selected}
 				onclick={() => view.setIn(column.id, null)}
 			>
@@ -82,7 +85,7 @@
 		</div>
 		{#each column.filterValues ?? [] as value (value)}
 			{@const checked = view.inValues(column.id)?.includes(value) ?? false}
-			<label data-speedy-enum-option>
+			<label data-speedy-enum-option class={view.classes.enumOption}>
 				<input type="checkbox" {checked} onchange={(e) => toggleValue(value, e.currentTarget.checked)} />
 				<span>{value}</span>
 			</label>
@@ -93,6 +96,7 @@
 	<div data-speedy-range data-active={range ? '' : undefined}>
 		<input
 			data-speedy-filter-input
+			class={view.classes.filterInput}
 			type="number"
 			inputmode="decimal"
 			placeholder="Min"
@@ -102,6 +106,7 @@
 		/>
 		<input
 			data-speedy-filter-input
+			class={view.classes.filterInput}
 			type="number"
 			inputmode="decimal"
 			placeholder="Max"
@@ -115,6 +120,7 @@
 	<div data-speedy-contains data-active={value !== '' ? '' : undefined} style="position:relative;">
 		<input
 			data-speedy-filter-input
+			class={view.classes.filterInput}
 			type="text"
 			placeholder="Filter…"
 			aria-label="Filter {column.header ?? column.id}"
@@ -125,6 +131,7 @@
 			<button
 				type="button"
 				data-speedy-filter-clear
+				class={view.classes.filterClear}
 				aria-label="Clear {column.header ?? column.id} filter"
 				onclick={() => view.setContains(column.id, '')}
 			>
