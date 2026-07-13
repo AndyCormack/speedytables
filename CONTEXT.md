@@ -81,6 +81,18 @@ A named, stylable element the components emit (headerCell, row, cell, filterInpu
 **Customization ladder**:
 The supported escalation path: token override → attribute CSS → part classes → snippet overrides → headless core.
 
+**Override**:
+One token value changed from the base theme. The editor stores only overrides and layers them as inline custom properties over the base theme's stylesheet.
+
+**Draft**:
+The theme editor's serializable state: base theme + overrides + row height. What autosave, named saves, share links, and JSON export carry.
+
+**Probe**:
+Reading a theme's effective token values from the computed styles of a hidden element, so the editor never duplicates theme CSS.
+
+**Picked theme**:
+The theme last viewed in the gallery or saved in the editor, persisted locally. Demo scenario pages follow it; bench runs pin their theme explicitly and start with fresh storage.
+
 ### Benchmarking
 
 **Scenario**:
