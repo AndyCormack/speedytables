@@ -92,17 +92,14 @@ interface RebuildMessage {
 	candidates?: ArrayBuffer;
 }
 
+// NOTE: dedicated workers expose no JS heap API in Chromium (neither the
+// legacy performance.memory nor measureUserAgentSpecificMemory). Worker heap
+// is measured from outside: the bench runner reads Runtime.getHeapUsage over
+// CDP, and headed pages can attribute it via measureUserAgentSpecificMemory.
 type InMessage =
 	| { t: 'proj-num'; columnId: string; version: number; buffer: ArrayBuffer }
 	| { t: 'proj-str-chunk'; columnId: string; version: number; start: number; total: number; values: string[] }
-	| { t: 'heap'; id: number }
 	| RebuildMessage;
-
-/** Chromium exposes the legacy memory API in dedicated workers; elsewhere report null. */
-function heapBytes(): number | null {
-	const memory = (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory;
-	return memory?.usedJSHeapSize ?? null;
-}
 
 function rebuild(msg: RebuildMessage): void {
 	let filtered: Uint32Array | null = null;
@@ -158,8 +155,6 @@ onmessage = (event: MessageEvent<InMessage>) => {
 				delete entry.pendingChunks;
 				delete entry.lower;
 			}
-		} else if (msg.t === 'heap') {
-			postMessage({ t: 'heap-report', id: msg.id, bytes: heapBytes() });
 		} else if (msg.t === 'rebuild') {
 			rebuild(msg);
 		}

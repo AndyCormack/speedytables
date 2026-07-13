@@ -60,11 +60,6 @@ export class Grid<Row> {
 		this.#recompute();
 	}
 
-	/** The worker's self-reported JS heap in bytes; null when no worker or unsupported. */
-	async workerHeapUsage(): Promise<number | null> {
-		return this.#bridge ? this.#bridge.heapUsage() : null;
-	}
-
 	/** Releases the worker (if any) and cancels in-flight work. */
 	destroy(): void {
 		this.#rebuildAbort?.abort();

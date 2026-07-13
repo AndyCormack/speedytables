@@ -34,8 +34,6 @@ export interface GridDriver {
 	scrollElement(): HTMLElement;
 	/** Horizontal scroll container. */
 	hScrollElement(): HTMLElement;
-	/** Worker's self-reported heap in MB, when the grid runs one. */
-	workerHeapMB?(): Promise<number | null>;
 	destroy(): void;
 }
 

@@ -11,6 +11,7 @@
 	} from '$lib/compare';
 	import { SIZES, type SizeKey } from '$lib/dataset';
 	import { drivers, type GridDriver, type GridName } from '$lib/drivers';
+	import { measureWorkerHeapMB } from '$lib/memory';
 
 	const { data } = $props();
 
@@ -79,8 +80,10 @@
 					: undefined
 			);
 			const results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });
-			const workerHeap = await driver.workerHeapMB?.();
-			if (workerHeap != null) results.workerHeapMB = workerHeap;
+			if (gridName === 'speedy' && exec !== 'main') {
+				const workerHeap = await measureWorkerHeapMB();
+				if (workerHeap != null) results.workerHeapMB = workerHeap;
+			}
 			saveRun(scenario.name, sizeKey, gridName === 'speedy' ? speedyStoreKey : 'aggrid', results);
 			storedVersion++;
 			return results;

@@ -78,6 +78,47 @@ function parseArgs(argv: string[]) {
 	};
 }
 
+/**
+ * Worker heap via CDP: dedicated workers expose no JS memory API, so attach to
+ * the worker target and read Runtime.getHeapUsage (V8 heap + typed-array
+ * backing stores — where the pipeline's projections live). Null when no worker.
+ */
+async function workerHeapMB(client: CDPSession): Promise<number | null> {
+	const { targetInfos } = await client.send('Target.getTargets');
+	const worker = targetInfos.find((t: { type: string }) => t.type === 'worker');
+	if (!worker) return null;
+	const { sessionId } = await client.send('Target.attachToTarget', {
+		targetId: worker.targetId,
+		flatten: false
+	});
+	return new Promise((resolve) => {
+		const messageId = 7001;
+		const handler = (params: { sessionId: string; message: string }) => {
+			if (params.sessionId !== sessionId) return;
+			const msg = JSON.parse(params.message);
+			if (msg.id !== messageId) return;
+			client.off('Target.receivedMessageFromTarget', handler);
+			const usage = msg.result as { usedSize?: number; backingStorageSize?: number } | undefined;
+			resolve(
+				usage?.usedSize !== undefined
+					? Math.round(((usage.usedSize + (usage.backingStorageSize ?? 0)) / 1e6) * 100) / 100
+					: null
+			);
+		};
+		client.on('Target.receivedMessageFromTarget', handler);
+		client
+			.send('Target.sendMessageToTarget', {
+				sessionId,
+				message: JSON.stringify({ id: messageId, method: 'Runtime.getHeapUsage' })
+			})
+			.catch(() => resolve(null));
+		setTimeout(() => {
+			client.off('Target.receivedMessageFromTarget', handler);
+			resolve(null);
+		}, 3000);
+	});
+}
+
 async function cdpMetrics(client: CDPSession): Promise<Record<string, number>> {
 	const { metrics } = await client.send('Performance.getMetrics');
 	return Object.fromEntries(metrics.map((m: { name: string; value: number }) => [m.name, m.value]));
@@ -93,9 +134,11 @@ async function runOnce(page: Page, url: string): Promise<Record<string, number>>
 		(window as unknown as { __scenario: { run(): Promise<Record<string, number>> } }).__scenario.run()
 	)) as Record<string, number>;
 	const after = await cdpMetrics(client);
+	const workerHeap = await workerHeapMB(client);
 	await client.detach();
 	return {
 		...measurements,
+		...(workerHeap !== null && { workerHeapMB: workerHeap }),
 		cdpTaskDurationMs: round(((after.TaskDuration ?? 0) - (before.TaskDuration ?? 0)) * 1000),
 		cdpJsHeapUsedMB: round((after.JSHeapUsedSize ?? 0) / 1e6)
 	};
