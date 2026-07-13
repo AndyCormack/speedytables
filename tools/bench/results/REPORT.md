@@ -101,27 +101,51 @@ _2026-07-13T08:46:19.440Z · core v0.5.0 · commit 1c88195 · AMD Ryzen 7 9800X3
 | cdpTaskDurationMs | 446.93 |
 | cdpJsHeapUsedMB | 312.18 |
 
-## filter-1m — speedy (worker) 0.5.0, 1m rows (median of 3)
+## filter-1m — speedy (worker) 0.5.1, 1m rows (median of 3)
 
-_2026-07-13T08:49:11.579Z · core v0.5.0 · commit 7b4727a · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-13-08-49-11-v0.5.0-7b4727a.json](2026-07-13-08-49-11-v0.5.0-7b4727a.json)_
+_2026-07-13T09:27:33.773Z · core v0.5.1 · commit 456f688 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-13-09-27-33-v0.5.1-456f688.json](2026-07-13-09-27-33-v0.5.1-456f688.json)_
 
 | metric | value |
 | --- | ---: |
-| keystrokeMedianMs | 33.2 |
-| keystrokeMaxMs | 228.3 |
-| clearFilterMs | 33.4 |
+| keystrokeMedianMs | 33.14 |
+| keystrokeMaxMs | 210.63 |
+| clearFilterMs | 33.03 |
 | longTaskCount | 0 |
 | longTaskTotalMs | 0 |
 | longTaskMaxMs | 0 |
-| keystroke1Ms | 228.3 |
-| keystroke2Ms | 33.1 |
-| keystroke3Ms | 33 |
-| keystroke4Ms | 33.1 |
-| keystroke5Ms | 33.2 |
-| keystroke6Ms | 33.4 |
-| keystroke7Ms | 33.6 |
-| cdpTaskDurationMs | 347.96 |
-| cdpJsHeapUsedMB | 281.72 |
+| keystroke1Ms | 210.63 |
+| keystroke2Ms | 33.19 |
+| keystroke3Ms | 32.81 |
+| keystroke4Ms | 32.98 |
+| keystroke5Ms | 34.44 |
+| keystroke6Ms | 32.51 |
+| keystroke7Ms | 33.18 |
+| workerHeapMB | 98.82 |
+| cdpTaskDurationMs | 344.65 |
+| cdpJsHeapUsedMB | 283.75 |
+
+## filter-1m — speedy (hybrid) 0.5.1, 1m rows (median of 3)
+
+_2026-07-13T09:27:44.840Z · core v0.5.1 · commit 456f688 (dirty) · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-13-09-27-44-v0.5.1-456f688.json](2026-07-13-09-27-44-v0.5.1-456f688.json)_
+
+| metric | value |
+| --- | ---: |
+| keystrokeMedianMs | 33.5 |
+| keystrokeMaxMs | 116.01 |
+| clearFilterMs | 34 |
+| longTaskCount | 0 |
+| longTaskTotalMs | 0 |
+| longTaskMaxMs | 0 |
+| keystroke1Ms | 116.01 |
+| keystroke2Ms | 24.22 |
+| keystroke3Ms | 32.51 |
+| keystroke4Ms | 33.5 |
+| keystroke5Ms | 32.97 |
+| keystroke6Ms | 33.53 |
+| keystroke7Ms | 33.75 |
+| workerHeapMB | 0.33 |
+| cdpTaskDurationMs | 400.48 |
+| cdpJsHeapUsedMB | 314.31 |
 
 ## initial-render — aggrid 34.3.1, 1m rows (median of 3)
 
@@ -270,21 +294,39 @@ _2026-07-13T08:46:19.440Z · core v0.5.0 · commit 1c88195 · AMD Ryzen 7 9800X3
 | cdpTaskDurationMs | 1325.01 |
 | cdpJsHeapUsedMB | 260.69 |
 
-## sort-1m — speedy (worker) 0.5.0, 1m rows (median of 3)
+## sort-1m — speedy (worker) 0.5.1, 1m rows (median of 3)
 
-_2026-07-13T08:46:47.720Z · core v0.5.0 · commit 1c88195 (dirty) · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-13-08-46-47-v0.5.0-1c88195.json](2026-07-13-08-46-47-v0.5.0-1c88195.json)_
+_2026-07-13T09:27:33.773Z · core v0.5.1 · commit 456f688 · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-13-09-27-33-v0.5.1-456f688.json](2026-07-13-09-27-33-v0.5.1-456f688.json)_
 
 | metric | value |
 | --- | ---: |
-| sortNumberDescMs | 250.8 |
-| sortNumberAscMs | 265.1 |
-| sortTextAscMs | 450.1 |
-| clearSortMs | 33 |
+| sortNumberDescMs | 249.87 |
+| sortNumberAscMs | 266.24 |
+| sortTextAscMs | 483.09 |
+| clearSortMs | 33.55 |
 | longTaskCount | 0 |
 | longTaskTotalMs | 0 |
 | longTaskMaxMs | 0 |
-| cdpTaskDurationMs | 299.55 |
-| cdpJsHeapUsedMB | 250.1 |
+| workerHeapMB | 44.34 |
+| cdpTaskDurationMs | 302.24 |
+| cdpJsHeapUsedMB | 254.32 |
+
+## sort-1m — speedy (hybrid) 0.5.1, 1m rows (median of 3)
+
+_2026-07-13T09:27:44.840Z · core v0.5.1 · commit 456f688 (dirty) · AMD Ryzen 7 9800X3D 8-Core Processor (16 cores) · Chromium 149.0.7827.55 · [2026-07-13-09-27-44-v0.5.1-456f688.json](2026-07-13-09-27-44-v0.5.1-456f688.json)_
+
+| metric | value |
+| --- | ---: |
+| sortNumberDescMs | 263.61 |
+| sortNumberAscMs | 282.99 |
+| sortTextAscMs | 533.66 |
+| clearSortMs | 33.42 |
+| longTaskCount | 0 |
+| longTaskTotalMs | 0 |
+| longTaskMaxMs | 0 |
+| workerHeapMB | 36.32 |
+| cdpTaskDurationMs | 322.47 |
+| cdpJsHeapUsedMB | 252.84 |
 
 ## wide-grid — aggrid 34.3.1, 10k rows (median of 3)
 

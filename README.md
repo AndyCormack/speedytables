@@ -21,7 +21,7 @@ Numbers are medians at 1,000,000 rows vs AG Grid Community on identical data ([f
 
 - **Live updates** (v0.4.0) — streaming 1,000 row updates per second into a million sorted + filtered rows, the grid holds 60fps and applies 99.8% of ticks on time, with zero main-thread stalls. AG Grid under the same load renders ~3 frames per second (worst stall: 4.2s) and falls behind on a third of the updates. Updates go through an explicit `applyDelta` API keyed by row id, coalesced per frame.
 
-- **Worker execution** (v0.5.0) — flip a toggle and sorting/filtering runs on a web worker: sorting a million rows drops main-thread work from ~1.3s of slices to ~0.3s (results identical, wall time equal or better — text sorts 18% faster). Keystroke latency is unchanged; the one cost is a one-time ~0.2s handoff of a text column's data on its first filter. Both executors ship and both are benchmarked.
+- **Worker execution** (v0.5.1) — flip a toggle and heavy compute runs on a web worker: sorting a million rows drops main-thread work from ~1.3s of slices to ~0.3s (results identical, wall time equal or better — text sorts up to 18% faster). Three modes ship, all benchmarked: main-thread, full worker, and **hybrid** (filters stay on the main thread where their data lives, sorts go to the worker) — hybrid keeps first-keystroke latency at main-thread speed *and* keeps the worker's memory near zero for filtering (0.3MB vs ~99MB in full-worker mode).
 
 Comparisons use a deliberately minimal, production-configured AG Grid (see [fairness notes](docs/benchmarking.md)).
 

@@ -1,0 +1,160 @@
+{
+	"meta": {
+		"date": "2026-07-13T09:27:44.840Z",
+		"versions": {
+			"@speedytables/core": "0.5.1",
+			"@speedytables/svelte": "0.5.1",
+			"ag-grid-community": "34.3.1"
+		},
+		"commit": "456f688",
+		"dirty": true,
+		"browser": "149.0.7827.55",
+		"node": "v24.18.0",
+		"os": "win32 10.0.26200",
+		"cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+		"cores": 16,
+		"memoryGB": 33.95
+	},
+	"results": [
+		{
+			"scenario": "sort-1m",
+			"grid": "speedy",
+			"size": "1m",
+			"exec": "hybrid",
+			"gridVersion": "0.5.1",
+			"repeats": 3,
+			"medians": {
+				"sortNumberDescMs": 263.61,
+				"sortNumberAscMs": 282.99,
+				"sortTextAscMs": 533.66,
+				"clearSortMs": 33.42,
+				"longTaskCount": 0,
+				"longTaskTotalMs": 0,
+				"longTaskMaxMs": 0,
+				"workerHeapMB": 36.32,
+				"cdpTaskDurationMs": 322.47,
+				"cdpJsHeapUsedMB": 252.84
+			},
+			"raw": [
+				{
+					"sortNumberDescMs": 250.37,
+					"sortNumberAscMs": 282.99,
+					"sortTextAscMs": 566.95,
+					"clearSortMs": 32.96,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"workerHeapMB": 36.32,
+					"cdpTaskDurationMs": 371.14,
+					"cdpJsHeapUsedMB": 252.24
+				},
+				{
+					"sortNumberDescMs": 267.27,
+					"sortNumberAscMs": 282.32,
+					"sortTextAscMs": 516.41,
+					"clearSortMs": 33.93,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"workerHeapMB": 36.32,
+					"cdpTaskDurationMs": 318.15,
+					"cdpJsHeapUsedMB": 252.84
+				},
+				{
+					"sortNumberDescMs": 263.61,
+					"sortNumberAscMs": 299.63,
+					"sortTextAscMs": 533.66,
+					"clearSortMs": 33.42,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"workerHeapMB": 36.32,
+					"cdpTaskDurationMs": 322.47,
+					"cdpJsHeapUsedMB": 254.92
+				}
+			]
+		},
+		{
+			"scenario": "filter-1m",
+			"grid": "speedy",
+			"size": "1m",
+			"exec": "hybrid",
+			"gridVersion": "0.5.1",
+			"repeats": 3,
+			"medians": {
+				"keystrokeMedianMs": 33.5,
+				"keystrokeMaxMs": 116.01,
+				"clearFilterMs": 34,
+				"longTaskCount": 0,
+				"longTaskTotalMs": 0,
+				"longTaskMaxMs": 0,
+				"keystroke1Ms": 116.01,
+				"keystroke2Ms": 24.22,
+				"keystroke3Ms": 32.51,
+				"keystroke4Ms": 33.5,
+				"keystroke5Ms": 32.97,
+				"keystroke6Ms": 33.53,
+				"keystroke7Ms": 33.75,
+				"workerHeapMB": 0.33,
+				"cdpTaskDurationMs": 400.48,
+				"cdpJsHeapUsedMB": 314.31
+			},
+			"raw": [
+				{
+					"keystrokeMedianMs": 33.5,
+					"keystrokeMaxMs": 116.01,
+					"clearFilterMs": 34,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"keystroke1Ms": 116.01,
+					"keystroke2Ms": 24.22,
+					"keystroke3Ms": 32.02,
+					"keystroke4Ms": 33.5,
+					"keystroke5Ms": 32.97,
+					"keystroke6Ms": 33.65,
+					"keystroke7Ms": 33.75,
+					"workerHeapMB": 0.33,
+					"cdpTaskDurationMs": 408.91,
+					"cdpJsHeapUsedMB": 314.21
+				},
+				{
+					"keystrokeMedianMs": 33.52,
+					"keystrokeMaxMs": 116.59,
+					"clearFilterMs": 32.51,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"keystroke1Ms": 116.59,
+					"keystroke2Ms": 24.23,
+					"keystroke3Ms": 33.65,
+					"keystroke4Ms": 33.52,
+					"keystroke5Ms": 33.49,
+					"keystroke6Ms": 32.36,
+					"keystroke7Ms": 34.14,
+					"workerHeapMB": 0.33,
+					"cdpTaskDurationMs": 400.48,
+					"cdpJsHeapUsedMB": 314.31
+				},
+				{
+					"keystrokeMedianMs": 32.99,
+					"keystrokeMaxMs": 110.06,
+					"clearFilterMs": 35,
+					"longTaskCount": 0,
+					"longTaskTotalMs": 0,
+					"longTaskMaxMs": 0,
+					"keystroke1Ms": 110.06,
+					"keystroke2Ms": 22.01,
+					"keystroke3Ms": 32.51,
+					"keystroke4Ms": 33.46,
+					"keystroke5Ms": 32.52,
+					"keystroke6Ms": 33.53,
+					"keystroke7Ms": 32.99,
+					"workerHeapMB": 0.33,
+					"cdpTaskDurationMs": 396.21,
+					"cdpJsHeapUsedMB": 314.33
+				}
+			]
+		}
+	]
+}
