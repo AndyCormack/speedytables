@@ -1,0 +1,10 @@
+/*
+ * Utilities-only Tailwind entry for the themes showcase: theme vars + utilities,
+ * deliberately NO preflight — Tailwind's global reset must never restyle the
+ * scenario/bench pages (fairness). Imported only by the showcase route.
+ */
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+
+/* the part-class preset lives in the library package — point the scanner at it */
+@source '../../../../packages/svelte/src/themes/tailwind.ts';

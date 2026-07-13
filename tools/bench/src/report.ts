@@ -28,6 +28,7 @@ interface Run {
 	grid: string;
 	size: string;
 	exec?: 'main' | 'worker' | 'hybrid';
+	theme?: 'graphite' | 'tailwind';
 	gridVersion?: string;
 	repeats: number;
 	medians: Record<string, number>;
@@ -50,14 +51,14 @@ if (files.length === 0) {
 }
 
 const gridLabel = (run: Run): string =>
-	`${run.grid}${run.exec && run.exec !== 'main' ? ` (${run.exec})` : ''}${run.gridVersion ? ` ${run.gridVersion}` : ''}`;
+	`${run.grid}${run.exec && run.exec !== 'main' ? ` (${run.exec})` : ''}${run.theme && run.theme !== 'graphite' ? ` [${run.theme}]` : ''}${run.gridVersion ? ` ${run.gridVersion}` : ''}`;
 
 // --- REPORT.md: later files overwrite earlier ones per key ---
 
 const latest = new Map<string, { run: Run; meta: Meta; file: string }>();
 for (const file of files) {
 	for (const run of file.results) {
-		latest.set(`${run.scenario}|${run.grid}|${run.exec ?? 'main'}|${run.size}`, {
+		latest.set(`${run.scenario}|${run.grid}|${run.exec ?? 'main'}|${run.theme ?? 'graphite'}|${run.size}`, {
 			run,
 			meta: file.meta,
 			file: file.name

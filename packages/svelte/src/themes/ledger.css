@@ -1,0 +1,27 @@
+/**
+ * ledger — the accountant's grid. Cool paper, oxblood accent, dense: smaller
+ * type, tighter padding, near-square corners. Shows the density tokens are
+ * real, not decorative.
+ */
+[data-speedy-theme='ledger'] {
+	color-scheme: light;
+	--st-bg: oklch(0.97 0.004 250);
+	--st-surface: oklch(0.935 0.006 250);
+	--st-surface-hover: oklch(0.905 0.008 250);
+	--st-panel: oklch(0.99 0.002 250);
+	--st-ink: oklch(0.22 0.015 260);
+	--st-ink-soft: oklch(0.46 0.018 260);
+	--st-border: oklch(0.885 0.006 250);
+	--st-border-strong: oklch(0.79 0.01 250);
+	--st-accent: oklch(0.45 0.15 20);
+	--st-accent-ink: oklch(0.985 0.003 20);
+	--st-accent-tint: oklch(0.92 0.03 20);
+	--st-radius: 2px;
+	--st-radius-panel: 3px;
+	--st-focus-ring: 0 0 0 2px oklch(0.45 0.15 20 / 0.3);
+	--st-shadow-panel: 0 2px 5px oklch(0.25 0.02 20 / 0.1), 0 6px 18px oklch(0.25 0.02 20 / 0.14);
+	--st-font-size: 12px;
+	--st-pad-x: 8px;
+	--st-header-weight: 650;
+	--st-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
+}

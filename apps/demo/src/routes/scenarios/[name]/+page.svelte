@@ -1,7 +1,10 @@
 <script lang="ts">
-	// the scenario pages dogfood shipped theme #1 (ADR-0005)
+	// the scenario pages dogfood shipped theme #1 (ADR-0005); the tailwind
+	// utilities import is inert unless ?theme=tailwind passes the class preset
 	import '@speedytables/svelte/themes/base.css';
 	import '@speedytables/svelte/themes/graphite.css';
+	import '$lib/tailwind-utilities.css';
+	import { tailwindTheme } from '@speedytables/svelte/themes/tailwind';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import {
@@ -32,6 +35,10 @@
 	/** storage bucket: each executor is a separate speedy variant in the comparison */
 	const speedyStoreKey = $derived(
 		(exec === 'main' ? 'speedy' : `speedy-${exec}`) as 'speedy' | 'speedy-worker' | 'speedy-hybrid'
+	);
+	/** ?theme=tailwind swaps the token theme for the part-class preset (bench parity path) */
+	const themeParam = $derived(
+		page.url.searchParams.get('theme') === 'tailwind' ? 'tailwind' : 'graphite'
 	);
 
 	// baseline first: test the grid we're comparing against, then the improvement
@@ -103,7 +110,10 @@
 			container.replaceChildren();
 			driver = drivers[gridName](
 				gridName === 'speedy'
-					? { compute: exec === 'main' ? 'main-thread' : exec === 'worker' ? 'worker' : 'hybrid' }
+					? {
+							compute: exec === 'main' ? 'main-thread' : exec === 'worker' ? 'worker' : 'hybrid',
+							classes: themeParam === 'tailwind' ? tailwindTheme : undefined
+						}
 					: undefined
 			);
 			const results = await scenario.run({ driver, el: container, size: SIZES[sizeKey] });
@@ -248,7 +258,11 @@
 	</table>
 {/if}
 
-<div class="grid-host" data-speedy-theme="graphite" bind:this={container}></div>
+<div
+	class="grid-host"
+	data-speedy-theme={themeParam === 'graphite' ? 'graphite' : undefined}
+	bind:this={container}
+></div>
 
 <style>
 	header {

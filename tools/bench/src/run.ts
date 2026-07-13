@@ -33,6 +33,8 @@ interface RunResult {
 	size: string;
 	/** Executor under test (speedy only): 'main' (time-sliced), 'worker', or 'hybrid'. */
 	exec: 'main' | 'worker' | 'hybrid';
+	/** Theme under test (speedy only): 'graphite' (token theme) or 'tailwind' (part-class preset). */
+	theme: 'graphite' | 'tailwind';
 	/** Version of the grid under test: core version for speedy, ag-grid-community for aggrid. */
 	gridVersion: string;
 	repeats: number;
@@ -74,7 +76,8 @@ function parseArgs(argv: string[]) {
 		exec: (['worker', 'hybrid'].includes(flags.get('exec') ?? '') ? flags.get('exec') : 'main') as
 			| 'main'
 			| 'worker'
-			| 'hybrid'
+			| 'hybrid',
+		theme: (flags.get('theme') === 'tailwind' ? 'tailwind' : 'graphite') as 'graphite' | 'tailwind'
 	};
 }
 
@@ -179,9 +182,11 @@ try {
 		const size = args.size ?? spec.size;
 		for (const grid of args.grids) {
 			const exec = grid === 'speedy' ? args.exec : 'main';
+			const theme = grid === 'speedy' ? args.theme : 'graphite';
 			// always explicit: the page's no-param default is hybrid
 			const execParam = grid === 'speedy' ? `&exec=${exec}` : '';
-			const url = `${BASE}/scenarios/${name}?grid=${grid}&size=${size}${execParam}`;
+			const themeParam = grid === 'speedy' && theme !== 'graphite' ? `&theme=${theme}` : '';
+			const url = `${BASE}/scenarios/${name}?grid=${grid}&size=${size}${execParam}${themeParam}`;
 			const raw: Record<string, number>[] = [];
 			for (let i = 0; i < args.repeats; i++) {
 				const context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
@@ -197,6 +202,7 @@ try {
 				grid,
 				size,
 				exec,
+				theme,
 				gridVersion: gridVersion(grid),
 				repeats: args.repeats,
 				medians: medians(raw),

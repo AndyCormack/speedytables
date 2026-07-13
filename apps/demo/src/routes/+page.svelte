@@ -36,7 +36,8 @@
 
 	<p class="foot">
 		Recorded results live in <code>tools/bench/results/</code> — regenerate with
-		<code>pnpm bench</code>.
+		<code>pnpm bench</code>. Browse the <a href="/themes">theme gallery</a> — five token themes
+		and a Tailwind preset over the same headless grid.
 	</p>
 </main>
 

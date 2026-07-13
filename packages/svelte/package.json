@@ -1,6 +1,6 @@
 {
   "name": "@speedytables/svelte",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "svelte": "./src/index.ts",
@@ -9,6 +9,10 @@
       "types": "./src/index.ts",
       "svelte": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./themes/tailwind": {
+      "types": "./src/themes/tailwind.ts",
+      "default": "./src/themes/tailwind.ts"
     },
     "./themes/*": "./src/themes/*"
   },

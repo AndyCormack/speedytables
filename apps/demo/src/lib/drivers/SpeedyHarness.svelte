@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { createGrid, type ColumnDef } from '@speedytables/core';
-	import { Table } from '@speedytables/svelte';
+	import { Table, type PartClasses } from '@speedytables/svelte';
 	import type { ColumnSpec } from './types';
 
 	let {
 		columns,
 		rows,
 		rowHeight,
-		compute = 'hybrid'
+		compute = 'hybrid',
+		classes
 	}: {
 		columns: ColumnSpec[];
 		rows: Record<string, unknown>[];
 		rowHeight: number;
 		compute?: 'main-thread' | 'worker' | 'hybrid';
+		classes?: PartClasses;
 	} = $props();
 
 	function toColumnDef(col: ColumnSpec): ColumnDef {
@@ -45,7 +47,7 @@
 	}
 </script>
 
-<Table.Root {grid}>
+<Table.Root {grid} {classes}>
 	<Table.Header />
 	<Table.Viewport />
 </Table.Root>

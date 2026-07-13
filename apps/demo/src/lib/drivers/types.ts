@@ -42,4 +42,6 @@ export type GridName = 'aggrid' | 'speedy';
 export interface DriverOptions {
 	/** speedy only: where pipeline compute runs. aggrid ignores it. */
 	compute?: 'main-thread' | 'worker' | 'hybrid';
+	/** speedy only: part-class theme (e.g. the Tailwind preset). aggrid ignores it. */
+	classes?: import('@speedytables/svelte').PartClasses;
 }
