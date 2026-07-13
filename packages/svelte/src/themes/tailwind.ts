@@ -16,6 +16,7 @@ export const tailwindTheme: PartClasses = {
 	root: 'rounded-lg border border-zinc-800 bg-zinc-950 text-[13px] text-zinc-100 [color-scheme:dark]',
 	header: 'border-b border-zinc-800 bg-zinc-900',
 	headerCell: 'group relative',
+	headerTop: 'flex items-center',
 	headerLabel:
 		'flex min-w-0 flex-1 cursor-pointer items-center gap-1 border-0 bg-transparent px-2.5 text-left leading-[30px] font-semibold text-zinc-100 transition-colors [font:inherit] font-semibold hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-400/50',
 	sortIndicator: 'text-[9px] text-sky-400',

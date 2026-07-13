@@ -59,7 +59,7 @@
 							dragId = null;
 						}}
 					>
-						<div data-speedy-header-top>
+						<div data-speedy-header-top class={view.classes.headerTop}>
 							<button
 								type="button"
 								data-speedy-header-label

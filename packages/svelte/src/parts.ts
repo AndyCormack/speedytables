@@ -8,6 +8,7 @@ export type Part =
 	| 'root'
 	| 'header'
 	| 'headerCell'
+	| 'headerTop'
 	| 'headerLabel'
 	| 'sortIndicator'
 	| 'headerFilter'
