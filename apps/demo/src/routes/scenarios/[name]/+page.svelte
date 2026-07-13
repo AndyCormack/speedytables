@@ -436,11 +436,16 @@
 		background: var(--st-surface);
 		border-bottom: 1px solid var(--st-border-strong);
 	}
+	.grid-host :global([data-speedy-header-top]) {
+		display: flex;
+		align-items: center;
+	}
 	.grid-host :global([data-speedy-header-label]) {
 		display: flex;
 		align-items: center;
 		gap: 4px;
-		width: 100%;
+		flex: 1;
+		min-width: 0;
 		padding: 0 10px;
 		border: none;
 		background: transparent;
@@ -468,6 +473,58 @@
 	}
 	.grid-host :global([data-speedy-header-cell][data-dtype='number'] [data-speedy-header-label]) {
 		justify-content: flex-end;
+	}
+	.grid-host :global([data-speedy-colmenu-trigger]) {
+		flex: none;
+		width: 20px;
+		height: 24px;
+		margin-right: 6px;
+		border: none;
+		border-radius: 4px;
+		background: transparent;
+		color: var(--st-ink-soft);
+		font: inherit;
+		cursor: pointer;
+		opacity: 0;
+		transition: opacity 150ms var(--st-ease);
+	}
+	.grid-host :global([data-speedy-header-cell]:hover [data-speedy-colmenu-trigger]),
+	.grid-host :global([data-speedy-colmenu-trigger]:focus-visible) {
+		opacity: 1;
+	}
+	.grid-host :global([data-speedy-colmenu-trigger]:hover) {
+		background: var(--st-surface-hover);
+		color: var(--st-ink);
+	}
+	.grid-host :global([data-speedy-resize-handle]) {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 7px;
+		height: 100%;
+		cursor: col-resize;
+		touch-action: none;
+	}
+	.grid-host :global([data-speedy-resize-handle]:hover),
+	.grid-host :global([data-speedy-resize-handle]:active) {
+		background: linear-gradient(to right, transparent 4px, var(--st-accent) 4px);
+	}
+	:global([data-speedy-menu-item]) {
+		display: block;
+		width: 100%;
+		text-align: left;
+		padding: 5px 8px;
+		border: none;
+		border-radius: 4px;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		font-size: 12px;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	:global([data-speedy-menu-item]:hover) {
+		background: oklch(0.275 0.014 255);
 	}
 	.grid-host :global([data-speedy-header-filter]) {
 		display: flex;
@@ -579,8 +636,9 @@
 		flex: none;
 	}
 
-	/* enum panel — rendered in the top layer via the Popover API */
-	:global([data-speedy-enum-panel]) {
+	/* enum + column-menu panels — rendered in the top layer via the Popover API */
+	:global([data-speedy-enum-panel]),
+	:global([data-speedy-menu-panel]) {
 		border: 1px solid oklch(0.38 0.015 255);
 		border-radius: 6px;
 		background: oklch(0.235 0.012 255);
@@ -601,13 +659,15 @@
 			display 150ms allow-discrete;
 	}
 	@starting-style {
-		:global([data-speedy-enum-panel]:popover-open) {
+		:global([data-speedy-enum-panel]:popover-open),
+		:global([data-speedy-menu-panel]:popover-open) {
 			opacity: 0;
 			transform: translateY(-4px);
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		:global([data-speedy-enum-panel]) {
+		:global([data-speedy-enum-panel]),
+		:global([data-speedy-menu-panel]) {
 			transition: none;
 		}
 		.grid-host :global(*) {

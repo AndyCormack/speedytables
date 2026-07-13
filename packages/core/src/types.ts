@@ -79,4 +79,19 @@ export interface PositionSlice {
 	virtualHeight: number;
 }
 
-export type Slice = 'window' | 'position' | 'sortModel' | 'filterModel';
+/** Effective column layout: visible columns in display order, widths resolved. */
+export interface ColumnsSlice {
+	columns: ColumnDef[];
+	totalWidth: number;
+}
+
+/** The contiguous slice of visible columns currently materialized for rendering. */
+export interface HWindowSlice {
+	firstCol: number;
+	columns: ColumnDef[];
+	/** translateX for the windowed cell block, in canvas px. */
+	offsetX: number;
+	totalWidth: number;
+}
+
+export type Slice = 'window' | 'position' | 'sortModel' | 'filterModel' | 'columns' | 'hwindow';

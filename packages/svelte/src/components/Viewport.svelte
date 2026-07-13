@@ -14,6 +14,7 @@
 	function syncScroll() {
 		view.scrollLeft = el.scrollLeft;
 		view.grid.setScrollTop(el.scrollTop);
+		view.grid.setScrollLeft(el.scrollLeft);
 	}
 
 	// Scroll events for programmatic scrolls fire one frame late, so rows would
@@ -31,8 +32,12 @@
 	}
 
 	$effect(() => {
-		view.grid.setViewportHeight(el.clientHeight);
-		const observer = new ResizeObserver(() => view.grid.setViewportHeight(el.clientHeight));
+		const measure = () => {
+			view.grid.setViewportHeight(el.clientHeight);
+			view.grid.setViewportWidth(el.clientWidth);
+		};
+		measure();
+		const observer = new ResizeObserver(measure);
 		observer.observe(el);
 		return () => observer.disconnect();
 	});

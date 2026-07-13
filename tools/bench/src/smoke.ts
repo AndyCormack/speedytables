@@ -74,11 +74,11 @@ try {
 	const panel = page.locator('[data-speedy-enum-panel]:popover-open');
 	check('enum popover opens visibly', await panel.isVisible());
 	const overlap = await page.evaluate(() => {
-		const p = document.querySelector('[data-speedy-enum-panel]:popover-open')?.getBoundingClientRect();
-		const row = document.querySelector('[data-speedy-row]')?.getBoundingClientRect();
-		if (!p || !row) return false;
+		const open = document.querySelector('[data-speedy-enum-panel]:popover-open');
+		const p = open?.getBoundingClientRect();
+		if (!open || !p) return false;
 		const el = document.elementFromPoint(p.left + 10, Math.min(p.top + 10, innerHeight - 1));
-		return document.querySelector('[data-speedy-enum-panel]')?.contains(el) ?? false;
+		return open.contains(el);
 	});
 	check('popover paints above rows', overlap);
 	await page.keyboard.press('Escape');

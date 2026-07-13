@@ -1,4 +1,12 @@
-import type { FilterSpec, Grid, PositionSlice, SortSpec, WindowSlice } from '@speedytables/core';
+import type {
+	ColumnsSlice,
+	FilterSpec,
+	Grid,
+	HWindowSlice,
+	PositionSlice,
+	SortSpec,
+	WindowSlice
+} from '@speedytables/core';
 
 export type RowData = Record<string, unknown>;
 
@@ -12,6 +20,8 @@ export class GridView {
 	position = $state.raw<PositionSlice>({ blockTop: 0, virtualHeight: 0 });
 	sortModel = $state.raw<SortSpec[]>([]);
 	filterModel = $state.raw<FilterSpec[]>([]);
+	columns = $state.raw<ColumnsSlice>({ columns: [], totalWidth: 0 });
+	hwindow = $state.raw<HWindowSlice>({ firstCol: 0, columns: [], offsetX: 0, totalWidth: 0 });
 	/** Horizontal scroll offset, for header sync. Purely a render concern. */
 	scrollLeft = $state(0);
 
@@ -21,12 +31,36 @@ export class GridView {
 		this.grid = grid;
 		this.window = grid.window;
 		this.position = grid.position;
+		this.columns = grid.visibleColumns;
+		this.hwindow = grid.hwindow;
 		this.#unsubscribe = [
 			grid.subscribe('window', () => (this.window = grid.window)),
 			grid.subscribe('position', () => (this.position = grid.position)),
 			grid.subscribe('sortModel', () => (this.sortModel = grid.sortModel)),
-			grid.subscribe('filterModel', () => (this.filterModel = grid.filterModel))
+			grid.subscribe('filterModel', () => (this.filterModel = grid.filterModel)),
+			grid.subscribe('columns', () => (this.columns = grid.visibleColumns)),
+			grid.subscribe('hwindow', () => (this.hwindow = grid.hwindow))
 		];
+	}
+
+	get hiddenCount(): number {
+		return this.grid.columns.length - this.columns.columns.length;
+	}
+
+	setColumnWidth(columnId: string, px: number): void {
+		this.grid.setColumnWidth(columnId, px);
+	}
+
+	moveColumn(columnId: string, beforeColumnId: string | null): void {
+		this.grid.moveColumn(columnId, beforeColumnId);
+	}
+
+	setColumnVisible(columnId: string, visible: boolean): void {
+		this.grid.setColumnVisible(columnId, visible);
+	}
+
+	showAllColumns(): void {
+		this.grid.showAllColumns();
 	}
 
 	/** Current contains-filter text for a column ('' when none). */
@@ -90,7 +124,7 @@ export class GridView {
 	}
 
 	get totalWidth(): number {
-		return this.grid.columns.reduce((sum, col) => sum + (col.width ?? 150), 0);
+		return this.columns.totalWidth;
 	}
 
 	destroy(): void {

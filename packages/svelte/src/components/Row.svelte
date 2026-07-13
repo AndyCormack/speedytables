@@ -13,17 +13,14 @@
 	const view = getTableContext();
 </script>
 
-<div
-	data-speedy-row
-	role="row"
-	aria-rowindex={index + 1}
-	style="display:flex; height:{view.grid.rowHeight}px;"
->
+<div data-speedy-row role="row" aria-rowindex={index + 1} style="height:{view.grid.rowHeight}px;">
 	{#if children}
 		{@render children()}
 	{:else}
-		{#each view.grid.columns as column (column.id)}
-			<Cell {row} {column} />
-		{/each}
+		<div style="display:flex; height:100%; transform:translateX({view.hwindow.offsetX}px);">
+			{#each view.hwindow.columns as column (column.id)}
+				<Cell {row} {column} />
+			{/each}
+		</div>
 	{/if}
 </div>

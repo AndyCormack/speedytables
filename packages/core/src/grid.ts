@@ -1,19 +1,25 @@
 import { SliceEmitter } from './emitter';
 import { MainThreadExecutor, type Executor, type Job } from './executor';
+import { computeHWindow } from './hviewport';
 import { RowPipeline } from './pipeline';
 import { buildComparator, sortIndexJob, type SortKey } from './sort';
 import { computeWindow } from './viewport';
 import { WorkerBridge, workerSupported } from './worker-bridge';
 import type {
 	ColumnDef,
+	ColumnsSlice,
 	Delta,
 	FilterSpec,
 	GridConfig,
+	HWindowSlice,
 	PositionSlice,
 	Slice,
 	SortSpec,
 	WindowSlice
 } from './types';
+
+const MIN_COLUMN_WIDTH = 40;
+const DEFAULT_COLUMN_WIDTH = 150;
 
 const scheduleFlush: (callback: () => void) => void =
 	typeof requestAnimationFrame === 'function'
@@ -46,6 +52,16 @@ export class Grid<Row> {
 	#window: WindowSlice<Row> = { firstRow: 0, count: 0, rows: [] };
 	#position: PositionSlice = { blockTop: 0, virtualHeight: 0 };
 
+	// column layout state (M6): order/visibility/width over the config columns
+	#order: string[];
+	#hidden = new Set<string>();
+	#widthOverrides = new Map<string, number>();
+	#effective: ColumnDef[] | null = null;
+	#scrollLeft = 0;
+	#viewportWidth = 0;
+	#columnsSlice: ColumnsSlice = { columns: [], totalWidth: 0 };
+	#hwindow: HWindowSlice = { firstCol: 0, columns: [], offsetX: 0, totalWidth: 0 };
+
 	constructor(config: GridConfig<Row>) {
 		this.columns = config.columns;
 		this.rowHeight = config.rowHeight ?? 32;
@@ -57,8 +73,111 @@ export class Grid<Row> {
 			this.#compute = compute;
 			this.#bridge = new WorkerBridge();
 		}
+		this.#order = config.columns.map((c) => c.id);
 		if (config.data) this.#pipeline.setSource(config.data);
 		this.#recompute();
+		this.#recomputeColumns();
+	}
+
+	/** Visible columns in display order with resolved widths, plus their total width. */
+	get visibleColumns(): ColumnsSlice {
+		return this.#columnsSlice;
+	}
+
+	get hwindow(): HWindowSlice {
+		return this.#hwindow;
+	}
+
+	setColumnWidth(columnId: string, px: number): void {
+		this.#widthOverrides.set(columnId, Math.max(MIN_COLUMN_WIDTH, Math.round(px)));
+		this.#recomputeColumns();
+	}
+
+	/** Moves a column in front of `beforeColumnId` in the display order (null → to the end). */
+	moveColumn(columnId: string, beforeColumnId: string | null): void {
+		if (columnId === beforeColumnId) return;
+		const from = this.#order.indexOf(columnId);
+		if (from < 0) return;
+		this.#order.splice(from, 1);
+		const to = beforeColumnId === null ? this.#order.length : this.#order.indexOf(beforeColumnId);
+		if (to < 0) {
+			this.#order.splice(from, 0, columnId); // unknown target: restore
+			return;
+		}
+		this.#order.splice(to, 0, columnId);
+		this.#recomputeColumns();
+	}
+
+	setColumnVisible(columnId: string, visible: boolean): void {
+		if (visible) this.#hidden.delete(columnId);
+		else this.#hidden.add(columnId);
+		this.#recomputeColumns();
+	}
+
+	showAllColumns(): void {
+		if (this.#hidden.size === 0) return;
+		this.#hidden.clear();
+		this.#recomputeColumns();
+	}
+
+	setScrollLeft(px: number): void {
+		this.#scrollLeft = px;
+		this.#recomputeHWindow();
+	}
+
+	setViewportWidth(px: number): void {
+		this.#viewportWidth = px;
+		this.#recomputeHWindow();
+	}
+
+	#effectiveColumns(): ColumnDef[] {
+		if (!this.#effective) {
+			const byId = new Map(this.columns.map((c) => [c.id, c]));
+			this.#effective = this.#order
+				.filter((id) => !this.#hidden.has(id))
+				.map((id) => byId.get(id)!)
+				.filter(Boolean)
+				.map((c) => ({ ...c, width: this.#widthOverrides.get(c.id) ?? c.width ?? DEFAULT_COLUMN_WIDTH }));
+		}
+		return this.#effective;
+	}
+
+	#recomputeColumns(): void {
+		this.#effective = null;
+		const columns = this.#effectiveColumns();
+		this.#columnsSlice = {
+			columns,
+			totalWidth: columns.reduce((sum, c) => sum + c.width!, 0)
+		};
+		this.#emitter.notify('columns');
+		this.#recomputeHWindow(true);
+	}
+
+	/** `layoutChanged` forces a refresh even at identical indices (widths/order moved). */
+	#recomputeHWindow(layoutChanged = false): void {
+		const columns = this.#effectiveColumns();
+		const next = computeHWindow(
+			this.#scrollLeft,
+			this.#viewportWidth,
+			columns.map((c) => c.width!)
+		);
+		const current = this.#hwindow;
+		if (
+			!layoutChanged &&
+			next.firstCol === current.firstCol &&
+			next.count === current.columns.length &&
+			next.offsetX === current.offsetX &&
+			next.totalWidth === current.totalWidth
+		) {
+			return; // per-pixel horizontal scrolling inside the same window
+		}
+		this.#hwindow = {
+			firstCol: next.firstCol,
+			columns: columns.slice(next.firstCol, next.firstCol + next.count),
+			offsetX: next.offsetX,
+			totalWidth: next.totalWidth
+		};
+		this.#emitter.notify('hwindow');
 	}
 
 	/** Releases the worker (if any) and cancels in-flight work. */
