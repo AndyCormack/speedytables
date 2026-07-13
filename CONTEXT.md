@@ -66,6 +66,21 @@ Stable, consumer-supplied identity for a row. Required. What deltas and incremen
 **Coalescing**:
 Batching all deltas received within one animation frame into a single pipeline patch.
 
+### Theming
+
+**Theme**:
+A shippable visual identity for the grid: a token file (plus the shared base stylesheet) or a part-class preset. Activated by `data-speedy-theme` on an ancestor.
+
+**Token**:
+One documented `--st-*` custom property in the public styling contract (surface, ink, border, accent, radius, density, motion). Additive-only after 1.0.
+_Avoid_: variable, CSS var (in docs — "token" is the contract word)
+
+**Part**:
+A named, stylable element the components emit (headerCell, row, cell, filterInput, …), addressable by `data-speedy-*` attribute and by the `classes` map.
+
+**Customization ladder**:
+The supported escalation path: token override → attribute CSS → part classes → snippet overrides → headless core.
+
 ### Benchmarking
 
 **Scenario**:
