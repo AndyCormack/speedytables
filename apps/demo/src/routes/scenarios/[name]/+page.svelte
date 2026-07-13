@@ -61,6 +61,18 @@
 	const currentVariant = $derived(gridName === 'aggrid' ? 'aggrid' : speedyStoreKey);
 	const anyStored = $derived(columns.length > 0);
 
+	// While a run is live, its column dims with a spinner; a variant with no
+	// stored results yet appears as a pending placeholder column.
+	const displayColumns = $derived.by(() => {
+		const cols: { key: StoreVariant; label: string; run: StoredRun | null; pending: boolean }[] =
+			columns.map((c) => ({ ...c, pending: running && c.key === currentVariant }));
+		if (running && !cols.some((c) => c.pending)) {
+			const meta = VARIANT_COLUMNS.find((v) => v.key === currentVariant)!;
+			cols.push({ ...meta, run: null, pending: true });
+		}
+		return cols;
+	});
+
 	function select(param: 'grid' | 'size' | 'exec', value: string) {
 		const grid = param === 'grid' ? value : gridName;
 		const size = param === 'size' ? value : sizeKey;
@@ -185,16 +197,20 @@
 	<p class="error">{error}</p>
 {/if}
 
-{#if anyStored}
-	{@const keys = metricKeys(...columns.map((c) => c.run.results))}
+{#if displayColumns.length > 0}
+	{@const keys = metricKeys(...displayColumns.map((c) => c.run?.results))}
 	<table class="compare">
 		<thead>
 			<tr>
 				<th></th>
-				{#each columns as column (column.key)}
-					<th class:current={column.key === currentVariant}>
+				{#each displayColumns as column (column.key)}
+					<th class:current={column.key === currentVariant} class:pending={column.pending}>
 						{column.label}
-						<span class="when">{relativeTime(column.run.date)}</span>
+						{#if column.pending}
+							<span class="when"><span class="spinner" aria-label="running"></span></span>
+						{:else if column.run}
+							<span class="when">{relativeTime(column.run.date)}</span>
+						{/if}
 					</th>
 				{/each}
 				<th class="delta-head" title="best SpeedyTables variant vs AG Grid">Δ</th>
@@ -202,23 +218,25 @@
 		</thead>
 		<tbody>
 			{#each keys as key (key)}
-				{@const values = columns.map((c) => c.run.results[key])}
+				{@const values = displayColumns.map((c) => c.run?.results[key])}
 				{@const present = values.filter((v) => v !== undefined)}
 				{@const contested = new Set(present).size > 1}
 				{@const best = contested ? bestOf(key, values) : null}
-				{@const aggridValue = columns.find((c) => c.key === 'aggrid')?.run.results[key]}
+				{@const aggridValue = displayColumns.find((c) => c.key === 'aggrid')?.run?.results[key]}
 				{@const bestSpeedy = bestOf(
 					key,
-					columns.filter((c) => c.key !== 'aggrid').map((c) => c.run.results[key])
-				) ?? columns.find((c) => c.key !== 'aggrid')?.run.results[key]}
+					displayColumns.filter((c) => c.key !== 'aggrid').map((c) => c.run?.results[key])
+				) ?? displayColumns.find((c) => c.key !== 'aggrid')?.run?.results[key]}
 				{@const delta =
 					aggridValue !== undefined && bestSpeedy !== undefined && bestSpeedy !== null
 						? compareMetric(key, bestSpeedy, aggridValue)
 						: null}
 				<tr>
 					<th>{key}</th>
-					{#each columns as column, i (column.key)}
-						<td class:win={best !== null && values[i] === best}>{values[i] ?? '·'}</td>
+					{#each displayColumns as column, i (column.key)}
+						<td class:win={best !== null && values[i] === best} class:pending={column.pending}>
+							{values[i] ?? '·'}
+						</td>
 					{/each}
 					<td class="delta" data-winner={delta?.winner ?? 'tie'}>{delta?.label ?? ''}</td>
 				</tr>
@@ -410,6 +428,36 @@
 	.compare .delta[data-winner='speedy'],
 	.compare .delta[data-winner='aggrid'] {
 		color: oklch(0.75 0.1 150);
+	}
+	.compare td.pending {
+		opacity: 0.35;
+		transition: opacity 200ms cubic-bezier(0.165, 0.84, 0.44, 1);
+	}
+	.compare th.pending {
+		color: var(--app-ink);
+	}
+	.spinner {
+		display: inline-block;
+		width: 11px;
+		height: 11px;
+		border: 2px solid oklch(0.35 0.03 220);
+		border-top-color: var(--app-accent);
+		border-radius: 50%;
+		vertical-align: -2px;
+		animation: st-spin 700ms linear infinite;
+	}
+	@keyframes st-spin {
+		to {
+			rotate: 1turn;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.spinner {
+			animation: none;
+		}
+		.compare td.pending {
+			transition: none;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
