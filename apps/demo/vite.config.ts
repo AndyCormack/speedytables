@@ -1,6 +1,6 @@
 import adapter from '@sveltejs/adapter-auto';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import { defineConfig, searchForWorkspaceRoot } from 'vite';
 
 // Cross-origin isolation: everything the demo loads is same-origin, and COI
 // enables performance.measureUserAgentSpecificMemory in the pipeline worker
@@ -27,6 +27,13 @@ const crossOriginIsolation = {
 };
 
 export default defineConfig({
+	server: {
+		fs: {
+			// dev serves @speedytables/core's worker script from packages/core —
+			// outside this app's root; without this vite 403s the worker request
+			allow: [searchForWorkspaceRoot(process.cwd())]
+		}
+	},
 	plugins: [
 		crossOriginIsolation,
 		sveltekit({
